@@ -1,11 +1,10 @@
-C:\Users\Owner\Documents\Visual Studio 2013\Projects\OpenFileDialogProj\OpenFileDialogProj\OpenFileDialogProj\bin\Debug\OpenFileDialogProj.exe.config
-C:\Users\Owner\Documents\Visual Studio 2013\Projects\OpenFileDialogProj\OpenFileDialogProj\OpenFileDialogProj\bin\Debug\OpenFileDialogProj.exe
-C:\Users\Owner\Documents\Visual Studio 2013\Projects\OpenFileDialogProj\OpenFileDialogProj\OpenFileDialogProj\bin\Debug\OpenFileDialogProj.pdb
-C:\Users\Owner\Documents\Visual Studio 2013\Projects\OpenFileDialogProj\OpenFileDialogProj\OpenFileDialogProj\bin\Debug\Interop.IWshRuntimeLibrary.dll
-C:\Users\Owner\Documents\Visual Studio 2013\Projects\OpenFileDialogProj\OpenFileDialogProj\OpenFileDialogProj\bin\Debug\Interop.Shell32.dll
-C:\Users\Owner\Documents\Visual Studio 2013\Projects\OpenFileDialogProj\OpenFileDialogProj\OpenFileDialogProj\obj\Debug\FileToFavorites.csprojResolveAssemblyReference.cache
-C:\Users\Owner\Documents\Visual Studio 2013\Projects\OpenFileDialogProj\OpenFileDialogProj\OpenFileDialogProj\obj\Debug\Interop.IWshRuntimeLibrary.dll
-C:\Users\Owner\Documents\Visual Studio 2013\Projects\OpenFileDialogProj\OpenFileDialogProj\OpenFileDialogProj\obj\Debug\Interop.Shell32.dll
-C:\Users\Owner\Documents\Visual Studio 2013\Projects\OpenFileDialogProj\OpenFileDialogProj\OpenFileDialogProj\obj\Debug\FileToFavorites.csproj.ResolveComReference.cache
-C:\Users\Owner\Documents\Visual Studio 2013\Projects\OpenFileDialogProj\OpenFileDialogProj\OpenFileDialogProj\obj\Debug\OpenFileDialogProj.exe
-C:\Users\Owner\Documents\Visual Studio 2013\Projects\OpenFileDialogProj\OpenFileDialogProj\OpenFileDialogProj\obj\Debug\OpenFileDialogProj.pdb
+C:\Users\evant_000\Documents\GitHub\FileSender\FileSender\OpenFileDialogProj\OpenFileDialogProj\bin\Debug\OpenFileDialogProj.exe.config
+C:\Users\evant_000\Documents\GitHub\FileSender\FileSender\OpenFileDialogProj\OpenFileDialogProj\obj\Debug\Interop.IWshRuntimeLibrary.dll
+C:\Users\evant_000\Documents\GitHub\FileSender\FileSender\OpenFileDialogProj\OpenFileDialogProj\obj\Debug\Interop.Shell32.dll
+C:\Users\evant_000\Documents\GitHub\FileSender\FileSender\OpenFileDialogProj\OpenFileDialogProj\obj\Debug\FileToFavorites.csproj.ResolveComReference.cache
+C:\Users\evant_000\Documents\GitHub\FileSender\FileSender\OpenFileDialogProj\OpenFileDialogProj\obj\Debug\OpenFileDialogProj.exe
+C:\Users\evant_000\Documents\GitHub\FileSender\FileSender\OpenFileDialogProj\OpenFileDialogProj\obj\Debug\OpenFileDialogProj.pdb
+C:\Users\evant_000\Documents\GitHub\FileSender\FileSender\OpenFileDialogProj\OpenFileDialogProj\bin\Debug\OpenFileDialogProj.exe
+C:\Users\evant_000\Documents\GitHub\FileSender\FileSender\OpenFileDialogProj\OpenFileDialogProj\bin\Debug\OpenFileDialogProj.pdb
+C:\Users\evant_000\Documents\GitHub\FileSender\FileSender\OpenFileDialogProj\OpenFileDialogProj\bin\Debug\Interop.IWshRuntimeLibrary.dll
+C:\Users\evant_000\Documents\GitHub\FileSender\FileSender\OpenFileDialogProj\OpenFileDialogProj\bin\Debug\Interop.Shell32.dll
