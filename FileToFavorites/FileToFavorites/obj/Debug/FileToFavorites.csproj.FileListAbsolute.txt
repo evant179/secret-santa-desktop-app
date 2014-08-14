@@ -1,0 +1,1 @@
+c:\users\owner\documents\visual studio 2013\Projects\FileToFavorites\FileToFavorites\bin\Debug\FileToFavorites.exe.config
