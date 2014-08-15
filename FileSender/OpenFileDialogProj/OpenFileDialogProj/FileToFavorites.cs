@@ -18,6 +18,7 @@ namespace FileToFavoritesProject
 {
     class FileToFavorites
     {
+        //d
         // We were missing this attribute originally
         // For reading: http://stackoverflow.com/questions/1361033/what-does-stathread-do
         [STAThread]
