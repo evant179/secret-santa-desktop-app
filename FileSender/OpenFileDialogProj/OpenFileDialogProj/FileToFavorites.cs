@@ -49,7 +49,7 @@ namespace FileToFavoritesProject
             // NOTE: in .Net 4, remove "Class" from WshShellClass to use.
             // http://stackoverflow.com/questions/2483659/interop-type-cannot-be-embedded
             IWshShell lib = new IWshShell_Class();
-            
+
             // Create the shortcut
             IWshRuntimeLibrary.IWshShortcut MyShortcut;
 
@@ -61,7 +61,7 @@ namespace FileToFavoritesProject
             string dirName = Path.GetFileName(executablePath);
             MyShortcut = (IWshRuntimeLibrary.IWshShortcut)lib.CreateShortcut(@deskDir + String.Format("\\{0}.lnk", dirName));
 
-            
+
             // Where the shortcut should point to
             //MyShortcut.TargetPath = Application.ExecutablePath;
             MyShortcut.TargetPath = @executablePath;
