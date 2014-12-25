@@ -76,7 +76,7 @@ public class Profile implements Initializable, ChangeListener{
 		//returns a list of locations with available trends
 		locations = twitter.getAvailableTrends();
 		
-		//iterates through all locations
+		//iterates through all location
 		for (Location currentLocation : locations)
 		{
 			list.add(currentLocation.getName());
