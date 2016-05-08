@@ -26,6 +26,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.layout.VBoxBuilder;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
@@ -69,36 +70,26 @@ public class SecretSantaGui extends Application
         this.primaryStage.setTitle("Secret Santa Generator");
         BorderPane border = new BorderPane();
         
-        HBox buttonPane = new HBox(19);
-        buttonPane.setPadding(new Insets(5,10,5,10));
-        Button btn = new Button();
-        btn.setText("Generate!");
-        btn.setMinWidth(80);
-        btn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                border.setBottom(addTable());
-            }
-        });
-        buttonPane.getChildren().add(btn);
-        this.saveButton.setMinWidth(80);
-        this.saveButton.setDisable(true);
-        buttonPane.getChildren().add(this.saveButton);
+//        HBox buttonPane = new HBox(19);
+//        buttonPane.setPadding(new Insets(5,10,5,10));
         
-        border.setTop(buttonPane);
-//        border.setRight(this.addMenuSelectionPane());
-        BorderPane.setAlignment(btn, Pos.CENTER);
+        
+//        border.setTop(buttonPane);
+        border.setRight(this.addMenuSelectionPane(border));
+//        BorderPane.setAlignment(btn, Pos.CENTER);
         
         border.setCenter(addCheckBoxes());
         
-        this.primaryStage.setScene(new Scene(border, 200, 700));
+        this.primaryStage.setScene(new Scene(border, 300, 700));
         this.primaryStage.show();
     }
     
     private FlowPane addCheckBoxes()
     {
         FlowPane flowPane = new FlowPane();
+        flowPane.setMinWidth(200);
+        flowPane.setPadding(new Insets(10,0,10,0));
+        flowPane.setVgap(5);
         
         for(SecretSanta secretSanta : this.secretSantaList)
         {
@@ -257,20 +248,37 @@ public class SecretSantaGui extends Application
         }
     }
     
-    private BorderPane addMenuSelectionPane()
+    private BorderPane addMenuSelectionPane(BorderPane border)
     {
         // TODO work here
         BorderPane historyPane = new BorderPane();
         
-        FlowPane buttonColumn = new FlowPane();
-        for(int i = 0; i < 6; i++)
-        {
-            Button button = new Button("testButton");
-            button.setMinWidth(100);
-            button.setMaxWidth(100);
-            button.setPrefWidth(100);
-            buttonColumn.getChildren().add(button);
-        }
+        VBox buttonColumn = new VBox(10);
+        buttonColumn.setPadding(new Insets(10,10,5,10));
+        
+//        for(int i = 0; i < 6; i++)
+//        {
+//            Button button = new Button("testButton");
+//            button.setMinWidth(100);
+//            button.setMaxWidth(100);
+//            button.setPrefWidth(100);
+//            buttonColumn.getChildren().add(button);
+//        }
+        
+        Button btn = new Button();
+        btn.setText("Generate!");
+        btn.setMinWidth(80);
+        btn.setOnAction(new EventHandler<ActionEvent>() {
+            
+            @Override
+            public void handle(ActionEvent event) {
+                border.setBottom(addTable());
+            }
+        });
+        buttonColumn.getChildren().add(btn);
+        this.saveButton.setMinWidth(80);
+        this.saveButton.setDisable(true);
+        buttonColumn.getChildren().add(this.saveButton);
         
         historyPane.setLeft(buttonColumn);
         return historyPane;
