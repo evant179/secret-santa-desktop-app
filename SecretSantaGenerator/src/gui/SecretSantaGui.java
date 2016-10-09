@@ -213,7 +213,16 @@ public class SecretSantaGui extends Application
                 
                 @Override
                 public void handle(ActionEvent event) {
-                    DataRecorder.recordData(recordList);
+                    try
+                    {
+                        DataRecorder.save(recordList);
+                    }
+                    catch (IOException e)
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                        System.out.println("ERROR SAVING CURRENT YEAR DATA");
+                    }
                 }
             });
         }

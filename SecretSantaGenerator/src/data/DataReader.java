@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import com.opencsv.CSVReader;
+
 import generator.SecretSanta;
 
 public class DataReader
@@ -19,25 +21,17 @@ public class DataReader
     public static List<SecretSanta> parseDataFile() throws FileNotFoundException, IOException
     {
         final List<SecretSanta> secretSantaList = new ArrayList<SecretSanta>();
-
-        // Input file which needs to be parsed
-        BufferedReader fileReader = null;
-
-        // Delimiter used in CSV file
-        final String DELIMITER = ",";
-        String line = "";
+        ExclusionReader exclusionReader = new ExclusionReader();
+        String[] tokens = null;
 
         // Create the file reader
-        fileReader = new BufferedReader(new FileReader(FILE_PATH));
+        CSVReader reader = new CSVReader(new FileReader(FILE_PATH));
 
         // Read the file line by line
-        while ((line = fileReader.readLine()) != null)
+        while ((tokens = reader.readNext()) != null)
         {
             String name = null;
             final List<String> excludedNames = new ArrayList<String>();
-
-            // Get all tokens available in line
-            String[] tokens = line.split(DELIMITER);
 
             // Check if tokens are not empty
             // and doesn't start with '#' (we're skipping these lines)
@@ -60,14 +54,28 @@ public class DataReader
                         excludedNames.add(currentData);
                     }
                 }
+                
+                if (name != null)
+                {
+                    List<String> exclusionListFromFile = exclusionReader.getNameToExclusionListMap().get(name);
+                    // TODO check exclusionListFromFile for null
+                    for (String excludedNameFromFile : exclusionListFromFile)
+                    {
+                        if (!excludedNames.contains(excludedNameFromFile))
+                        {
+                            excludedNames.add(excludedNameFromFile);
+                        }
+                    }
+                }
+                
 
-                // // debug
-                // System.out.print(name + "//excludes//");
-                // for(String excludedName : excludedNames)
-                // {
-                // System.out.print(excludedName + "||");
-                // }
-                // System.out.println();
+                // debug
+                System.out.print(name + "//excludes//");
+                for (String excludedName : excludedNames)
+                {
+                    System.out.print(excludedName + "||");
+                }
+                System.out.println();
 
                 // Create SecretSanta for each row entry
                 SecretSanta secretSanta = new SecretSanta(name, excludedNames);
@@ -76,7 +84,7 @@ public class DataReader
             }
         }
         
-        fileReader.close();
+        reader.close();
             
         return secretSantaList;
     }
