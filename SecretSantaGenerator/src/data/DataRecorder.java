@@ -1,51 +1,36 @@
 package data;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.opencsv.CSVParser;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
 import gui.SecretSantaDisplayType;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.layout.VBoxBuilder;
-import javafx.scene.text.Text;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 
 public class DataRecorder
 {
-    private final static String COMMA_DELIMITER = ",";
-    private final static String NEW_LINE_SEPARATOR = "\n";
     private static final String FILE_PATH = "resources/data.csv";
     private final static String NEW_FILE_PATH = "resources/current_year_data.csv";
-    private final static String DATA_SAVE_ERROR = "Cannot save current_year_data.csv.";
-    private final static String FILE_HEADER = "#THIS PERSON, WILL GIFT";
-    
+
     public static void save(List<SecretSantaDisplayType> recordList) throws IOException
     {
         // first read data.csv
         // then append recordList at end
-        
+
+        @SuppressWarnings("resource")
         CSVReader reader = new CSVReader(new FileReader(FILE_PATH));
         CSVWriter writer = new CSVWriter(new FileWriter(NEW_FILE_PATH), ',');
-        
+
         int rowSize = 0;
-        
+
         String[] entries = null;
-        while ((entries = reader.readNext()) != null) {
+        while ((entries = reader.readNext()) != null)
+        {
             List<String> list = Arrays.asList(entries); // Arrays.asList(entries) is unnmodifiable
             list = new ArrayList<String>(list); // Convert to ArrayList to be modifiable
 
@@ -72,7 +57,7 @@ public class DataRecorder
                         break;
                     }
                 }
-                
+
                 if (!isMatchFound)
                 {
                     // If no match found, then add empty string at end of current row
@@ -82,10 +67,10 @@ public class DataRecorder
             }
 
             checkRowSize(rowSize, list);
-            
+
             writer.writeNext(list.toArray(new String[0]));
         }
-        
+
         // Save newcomers
         for (SecretSantaDisplayType newComer : recordList)
         {
@@ -99,7 +84,7 @@ public class DataRecorder
             checkRowSize(rowSize, newComerRow);
             writer.writeNext(newComerRow.toArray(new String[0]));
         }
-        
+
         writer.close();
     }
 
