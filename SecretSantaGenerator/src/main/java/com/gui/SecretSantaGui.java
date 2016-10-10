@@ -1,15 +1,16 @@
-package gui;
+package com.gui;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import data.DataReader;
-import data.DataRecorder;
-import generator.GenerateException;
-import generator.SecretSanta;
-import generator.SecretSantaGenerator;
+import com.data.DataReader;
+import com.data.DataRecorder;
+import com.generator.GenerateException;
+import com.generator.SecretSanta;
+import com.generator.SecretSantaGenerator;
+
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

@@ -1,4 +1,4 @@
-package generator;
+package com.generator;
 
 @SuppressWarnings("serial")
 public class GenerateException extends Exception

@@ -1,4 +1,4 @@
-package data;
+package com.data;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,7 +11,7 @@ import java.util.Scanner;
 
 import com.opencsv.CSVReader;
 
-import generator.SecretSanta;
+import com.generator.SecretSanta;
 
 public class DataReader
 {

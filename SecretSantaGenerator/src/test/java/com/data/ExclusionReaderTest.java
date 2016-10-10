@@ -1,4 +1,4 @@
-package test;
+package com.data;
 
 import static org.junit.Assert.fail;
 
@@ -8,20 +8,19 @@ import java.util.List;
 
 import org.junit.Test;
 
-import data.DataRecorder;
-import gui.SecretSantaDisplayType;
+import com.gui.SecretSantaDisplayType;
 
-public class DataRecorderTest
+public class ExclusionReaderTest
 {
     @Test
     public void test()
     {
-        List<SecretSantaDisplayType> testList = createTestSecretSantaDisplayList();
         try
         {
-            DataRecorder.save(testList);
+            ExclusionReader exclusionReader = new ExclusionReader();
+            int stop = 5;
 
-            // TODO add checks later if every row matches same amount of entries
+            // TODO add actual tests
         }
         catch (IOException e)
         {
@@ -36,7 +35,6 @@ public class DataRecorderTest
         List<SecretSantaDisplayType> list = new ArrayList<SecretSantaDisplayType>();
         list.add(new SecretSantaDisplayType("EVAN", "test1"));
         list.add(new SecretSantaDisplayType("JUSTIN", "test2"));
-        list.add(new SecretSantaDisplayType("NEWCOMER", "test3"));
 
         return list;
     }
