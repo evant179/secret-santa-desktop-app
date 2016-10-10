@@ -13,9 +13,10 @@ public class DataReaderTest
     @Test
     public void test()
     {
+        DataReader dataReader = new DataReader();
         try
         {
-            DataReader.parseDataFile();
+            dataReader.parseDataFile();
         }
         catch (IOException e)
         {

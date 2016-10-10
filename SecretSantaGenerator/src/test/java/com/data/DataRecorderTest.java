@@ -15,10 +15,11 @@ public class DataRecorderTest
     @Test
     public void test()
     {
+        DataRecorder dataRecorder = new DataRecorder();
         List<SecretSantaDisplayType> testList = createTestSecretSantaDisplayList();
         try
         {
-            DataRecorder.save(testList);
+            dataRecorder.save(testList);
 
             // TODO add checks later if every row matches same amount of entries
         }

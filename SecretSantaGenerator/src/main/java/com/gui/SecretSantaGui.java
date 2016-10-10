@@ -39,6 +39,9 @@ public class SecretSantaGui extends Application
     private final static String DATA_READ_ERROR = "Cannot locate data.csv.";
     
     private Stage primaryStage;
+    private DataRecorder dataRecorder;
+    private DataReader dataReader;
+    
     private List<SecretSanta> secretSantaList;
     private final List<CheckBox> checkBoxList = new ArrayList<CheckBox>();
     private final Button saveButton = new Button("Save!");
@@ -52,10 +55,12 @@ public class SecretSantaGui extends Application
     public void start(Stage stage) throws Exception
     {
         this.primaryStage = stage;
+        this.dataRecorder = new DataRecorder();
+        this.dataReader = new DataReader();
         
         try
         {
-            this.secretSantaList = DataReader.parseDataFile();
+            this.secretSantaList = dataReader.parseDataFile();
         }
         catch (FileNotFoundException e)
         {
@@ -216,7 +221,7 @@ public class SecretSantaGui extends Application
                 public void handle(ActionEvent event) {
                     try
                     {
-                        DataRecorder.save(recordList);
+                        dataRecorder.save(recordList);
                     }
                     catch (IOException e)
                     {

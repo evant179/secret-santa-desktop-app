@@ -17,7 +17,7 @@ public class DataRecorder
     private static final String FILE_PATH = "resources/data.csv";
     private final static String NEW_FILE_PATH = "resources/current_year_data.csv";
 
-    public static void save(List<SecretSantaDisplayType> recordList) throws IOException
+    public void save(List<SecretSantaDisplayType> recordList) throws IOException
     {
         // first read data.csv
         // then append recordList at end
@@ -88,7 +88,7 @@ public class DataRecorder
         writer.close();
     }
 
-    private static void checkRowSize(int rowSize, List<String> list)
+    private void checkRowSize(int rowSize, List<String> list)
     {
         if (rowSize != list.size())
         {

@@ -18,7 +18,7 @@ public class DataReader
     private static final String FILE_PATH = "resources/data.csv";
     
     // TODO parsing into tokens: http://howtodoinjava.com/2013/05/27/parse-csv-files-in-java/
-    public static List<SecretSanta> parseDataFile() throws FileNotFoundException, IOException
+    public List<SecretSanta> parseDataFile() throws FileNotFoundException, IOException
     {
         final List<SecretSanta> secretSantaList = new ArrayList<SecretSanta>();
         ExclusionReader exclusionReader = new ExclusionReader();
