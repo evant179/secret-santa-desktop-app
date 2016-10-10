@@ -60,7 +60,8 @@ public class SecretSantaGui extends Application
         
         try
         {
-            this.secretSantaList = dataReader.parseDataFile();
+            this.secretSantaList = dataReader.parseDataFile(
+                    Constants.DATA_FILE_PATH, Constants.EXCLUSION_FILE_PATH);
         }
         catch (FileNotFoundException e)
         {
@@ -221,7 +222,8 @@ public class SecretSantaGui extends Application
                 public void handle(ActionEvent event) {
                     try
                     {
-                        dataRecorder.save(recordList);
+                        dataRecorder.save(recordList, Constants.DATA_FILE_PATH,
+                                Constants.OUTPUT_FILE_PATH);
                     }
                     catch (IOException e)
                     {

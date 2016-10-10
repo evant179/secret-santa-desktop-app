@@ -9,17 +9,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.gui.Constants;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
 public class ExclusionReader
 {
-    private static final String FILE_PATH = "resources/exclusions.csv";
+    
     private final Map<String, List<String>> nameToExclusionListMap = new HashMap<String, List<String>>();
 
-    public ExclusionReader() throws IOException
+    public ExclusionReader(String filePath) throws IOException
     {
-        CSVReader reader = new CSVReader(new FileReader(FILE_PATH));
+        CSVReader reader = new CSVReader(new FileReader(filePath));
         String[] tokens = null;
 
         // read each line

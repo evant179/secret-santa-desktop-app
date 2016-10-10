@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.gui.Constants;
 import com.gui.SecretSantaDisplayType;
 
 public class ExclusionReaderTest
@@ -17,7 +18,7 @@ public class ExclusionReaderTest
     {
         try
         {
-            ExclusionReader exclusionReader = new ExclusionReader();
+            ExclusionReader exclusionReader = new ExclusionReader(Constants.EXCLUSION_FILE_PATH);
             int stop = 5;
 
             // TODO add actual tests

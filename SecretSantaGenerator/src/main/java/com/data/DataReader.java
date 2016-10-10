@@ -12,20 +12,22 @@ import java.util.Scanner;
 import com.opencsv.CSVReader;
 
 import com.generator.SecretSanta;
+import com.gui.Constants;
 
 public class DataReader
 {
-    private static final String FILE_PATH = "resources/data.csv";
+    
     
     // TODO parsing into tokens: http://howtodoinjava.com/2013/05/27/parse-csv-files-in-java/
-    public List<SecretSanta> parseDataFile() throws FileNotFoundException, IOException
+    public List<SecretSanta> parseDataFile(String dataFilePath,
+            String exclusionFilePath) throws FileNotFoundException, IOException
     {
         final List<SecretSanta> secretSantaList = new ArrayList<SecretSanta>();
-        ExclusionReader exclusionReader = new ExclusionReader();
+        ExclusionReader exclusionReader = new ExclusionReader(exclusionFilePath);
         String[] tokens = null;
 
         // Create the file reader
-        CSVReader reader = new CSVReader(new FileReader(FILE_PATH));
+        CSVReader reader = new CSVReader(new FileReader(dataFilePath));
 
         // Read the file line by line
         while ((tokens = reader.readNext()) != null)

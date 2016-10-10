@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.gui.Constants;
 import com.gui.SecretSantaDisplayType;
 
 public class DataRecorderTest
@@ -19,7 +20,8 @@ public class DataRecorderTest
         List<SecretSantaDisplayType> testList = createTestSecretSantaDisplayList();
         try
         {
-            dataRecorder.save(testList);
+            dataRecorder.save(testList, Constants.DATA_FILE_PATH,
+                    Constants.OUTPUT_FILE_PATH);
 
             // TODO add checks later if every row matches same amount of entries
         }

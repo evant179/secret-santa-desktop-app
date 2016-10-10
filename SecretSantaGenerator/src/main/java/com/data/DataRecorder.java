@@ -14,17 +14,15 @@ import com.gui.SecretSantaDisplayType;
 
 public class DataRecorder
 {
-    private static final String FILE_PATH = "resources/data.csv";
-    private final static String NEW_FILE_PATH = "resources/current_year_data.csv";
-
-    public void save(List<SecretSantaDisplayType> recordList) throws IOException
+    public void save(List<SecretSantaDisplayType> recordList,
+            String dataFilePath, String outputFilePath) throws IOException
     {
         // first read data.csv
         // then append recordList at end
 
         @SuppressWarnings("resource")
-        CSVReader reader = new CSVReader(new FileReader(FILE_PATH));
-        CSVWriter writer = new CSVWriter(new FileWriter(NEW_FILE_PATH), ',');
+        CSVReader reader = new CSVReader(new FileReader(dataFilePath));
+        CSVWriter writer = new CSVWriter(new FileWriter(outputFilePath), ',');
 
         int rowSize = 0;
 
