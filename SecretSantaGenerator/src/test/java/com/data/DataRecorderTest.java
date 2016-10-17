@@ -32,6 +32,26 @@ public class DataRecorderTest
             fail("File not found or file cannot be written");
         }
     }
+    
+//    @Test
+//    public void debugConverterTest()
+//    {
+//        DataRecorder dataRecorder = new DataRecorder();
+//        List<SecretSantaDisplayType> testList = createTestSecretSantaDisplayList();
+//        try
+//        {
+//            dataRecorder.debugConverter(Constants.EXCLUSION_FILE_PATH,
+//                    "resources/output.csv");
+//
+//            // TODO add checks later if every row matches same amount of entries
+//        }
+//        catch (IOException e)
+//        {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//            fail("File not found or file cannot be written");
+//        }
+//    }
 
     private List<SecretSantaDisplayType> createTestSecretSantaDisplayList()
     {
