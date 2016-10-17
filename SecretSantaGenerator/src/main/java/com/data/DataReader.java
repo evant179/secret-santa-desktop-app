@@ -60,13 +60,15 @@ public class DataReader
                 if (name != null)
                 {
                     List<String> exclusionListFromFile = exclusionReader.getNameToExclusionListMap().get(name);
-                    // TODO check exclusionListFromFile for null
-                    for (String excludedNameFromFile : exclusionListFromFile)
+                    if (null != exclusionListFromFile)
                     {
-                        if (!excludedNames.contains(excludedNameFromFile))
+                        for (String excludedNameFromFile : exclusionListFromFile)
                         {
-                            excludedNames.add(excludedNameFromFile);
-                        }
+                            if (!excludedNames.contains(excludedNameFromFile))
+                            {
+                                excludedNames.add(excludedNameFromFile);
+                            }
+                        } 
                     }
                 }
                 

@@ -1,25 +1,22 @@
 package com.data;
 
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.gui.Constants;
 import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;
 
 public class ExclusionReader
 {
-    
+
     private final Map<String, List<String>> nameToExclusionListMap = new HashMap<String, List<String>>();
 
     public ExclusionReader(String filePath) throws IOException
     {
+        @SuppressWarnings("resource")
         CSVReader reader = new CSVReader(new FileReader(filePath));
         String[] tokens = null;
 
@@ -43,7 +40,6 @@ public class ExclusionReader
                     {
                         // store first token as name
                         name = currentData;
-
                     }
                     else
                     {
