@@ -1,29 +1,9 @@
-# README #
+# Secret Santa Generator#
 
-This README would normally document whatever steps are necessary to get your application up and running.
 
-### What is this repository for? ###
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+### Features to add ###
 
-### How do I get set up? ###
-
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+* Update existing table to show full history. When "Generate!" is selected, append new year and list on that table.
+* Add button to add newcomers.
+* Add button to edit exclusions.
