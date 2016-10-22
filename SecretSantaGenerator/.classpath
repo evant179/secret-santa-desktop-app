@@ -25,5 +25,6 @@
 			<attribute name="javadoc_location" value="http://www.slf4j.org/apidocs/index.html"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/mockito-all-1.9.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

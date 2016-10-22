@@ -14,16 +14,23 @@ import com.gui.SecretSantaDisplayType;
 
 public class DataRecorder
 {
-    public void save(List<SecretSantaDisplayType> recordList,
-            String dataFilePath, String outputFilePath) throws IOException
+    /**
+     * Append new secret santa results onto the current data
+     * 
+     * @param recordList
+     *            List containing secret santa results to be appended
+     * @param dataFilePath
+     * @param outputFilePath
+     * @throws IOException
+     */
+    public void save(List<SecretSantaDisplayType> recordList, String dataFilePath,
+            CSVWriter writer) throws IOException
     {
         // first read data.csv
         // then append recordList at end
 
         @SuppressWarnings("resource")
         CSVReader reader = new CSVReader(new FileReader(dataFilePath));
-        CSVWriter writer = new CSVWriter(new FileWriter(outputFilePath), ',',
-                CSVWriter.NO_QUOTE_CHARACTER);
 
         int rowSize = 0;
 
@@ -91,26 +98,28 @@ public class DataRecorder
     {
         if (rowSize != list.size())
         {
-            System.out.println("ERROR when saving - header row size does NOT match current row size: " + list.get(0));
+            System.out.println(
+                    "ERROR when saving - header row size does NOT match current row size: "
+                            + list.get(0));
         }
     }
-    
-//    public void debugConverter(String dataFilePath, String outputFilePath) throws IOException
-//    {
-//        @SuppressWarnings("resource")
-//        CSVReader reader = new CSVReader(new FileReader(dataFilePath));
-//        CSVWriter writer = new CSVWriter(new FileWriter(outputFilePath), ',',
-//                CSVWriter.NO_QUOTE_CHARACTER);
-//
-//        String[] entries = null;
-//        while ((entries = reader.readNext()) != null)
-//        {
-//            List<String> list = Arrays.asList(entries); // Arrays.asList(entries) is unnmodifiable
-//            list = new ArrayList<String>(list); // Convert to ArrayList to be modifiable
-//
-//            writer.writeNext(list.toArray(new String[0]));
-//        }
-//
-//        writer.close();
-//    }
+
+    //    public void debugConverter(String dataFilePath, String outputFilePath) throws IOException
+    //    {
+    //        @SuppressWarnings("resource")
+    //        CSVReader reader = new CSVReader(new FileReader(dataFilePath));
+    //        CSVWriter writer = new CSVWriter(new FileWriter(outputFilePath), ',',
+    //                CSVWriter.NO_QUOTE_CHARACTER);
+    //
+    //        String[] entries = null;
+    //        while ((entries = reader.readNext()) != null)
+    //        {
+    //            List<String> list = Arrays.asList(entries); // Arrays.asList(entries) is unnmodifiable
+    //            list = new ArrayList<String>(list); // Convert to ArrayList to be modifiable
+    //
+    //            writer.writeNext(list.toArray(new String[0]));
+    //        }
+    //
+    //        writer.close();
+    //    }
 }

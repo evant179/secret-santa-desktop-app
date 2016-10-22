@@ -1,6 +1,7 @@
 package com.gui;
 
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import com.data.DataRecorder;
 import com.generator.GenerateException;
 import com.generator.SecretSanta;
 import com.generator.SecretSantaGenerator;
+import com.opencsv.CSVWriter;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -222,8 +224,11 @@ public class SecretSantaGui extends Application
                 public void handle(ActionEvent event) {
                     try
                     {
+                        CSVWriter writer = new CSVWriter(
+                                new FileWriter(Constants.OUTPUT_FILE_PATH), ',',
+                                CSVWriter.NO_QUOTE_CHARACTER);
                         dataRecorder.save(recordList, Constants.DATA_FILE_PATH,
-                                Constants.OUTPUT_FILE_PATH);
+                                writer);
                     }
                     catch (IOException e)
                     {
