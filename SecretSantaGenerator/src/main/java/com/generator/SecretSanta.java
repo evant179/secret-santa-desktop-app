@@ -16,6 +16,7 @@ public class SecretSanta implements Comparable<SecretSanta>
 
     private final String name;
     private List<String> excludedNames;
+    private String overridenSelection;
 
     public SecretSanta(String name, List<String> excludedNames)
     {
@@ -43,6 +44,16 @@ public class SecretSanta implements Comparable<SecretSanta>
     public List<String> getExcludedNames()
     {
         return excludedNames;
+    }
+
+    public String getOverridenSelection()
+    {
+        return overridenSelection;
+    }
+
+    public void setOverridenSelection(String overridenSelection)
+    {
+        this.overridenSelection = overridenSelection;
     }
 
     @Override

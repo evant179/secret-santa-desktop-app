@@ -37,7 +37,7 @@ public class DataReaderTest
 
         try
         {
-            secretSantaList = dataReader.parseDataFile(dataFile.getPath(),
+            secretSantaList = dataReader.parseDataFileWithExclusionFile(dataFile.getPath(),
                     exclusionsFile.getPath());
         }
         catch (IOException e)

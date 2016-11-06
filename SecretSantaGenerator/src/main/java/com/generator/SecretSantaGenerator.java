@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.gui.SecretSantaDisplayType;
 
 /**
@@ -14,6 +17,8 @@ import com.gui.SecretSantaDisplayType;
  */
 public class SecretSantaGenerator
 {
+    private static final Logger logger = LoggerFactory.getLogger(SecretSantaGenerator.class);
+
     private final List<SecretSanta> secretSantas;
     private final Map<String, Boolean> takenNames = new HashMap<String, Boolean>();
     private final Random random = new Random();
@@ -42,6 +47,18 @@ public class SecretSantaGenerator
             // TODO have a check here for attendence
             this.takenNames.put(secretSanta.getName(), false);
         }
+        
+        // mark rigged names
+        for(SecretSanta secretSanta: this.secretSantas)
+        {
+            if (secretSanta.getOverridenSelection() != null &&
+                    !secretSanta.getOverridenSelection().isEmpty())
+            {
+                logger.info("detect override for [{}]: [{}]",
+                        secretSanta.getName(), secretSanta.getOverridenSelection());
+                this.takenNames.replace(secretSanta.getOverridenSelection(), true);
+            }
+        }
 
         // Sort the secret santas from most exclusions to least exclusions. This will lessen
         // the chance of running into an impossible scenario (where a person has no available
@@ -50,13 +67,25 @@ public class SecretSantaGenerator
         
         for(SecretSanta secretSanta : this.secretSantas)
         {
-            String assignedName = assignSecretSanta(secretSanta);
-            
-            // Assign name to secret santa map
-            secretSantaMap.put(secretSanta.getName(), assignedName);
-
-            // Mark the map of taken names as true (taken)
-            this.takenNames.replace(assignedName, true);
+            if (secretSanta.getOverridenSelection() != null &&
+                    !secretSanta.getOverridenSelection().isEmpty())
+            {
+                final String riggedName = secretSanta.getOverridenSelection();
+                logger.info("successfully override for [{}]: [{}]",
+                        secretSanta.getName(), secretSanta.getOverridenSelection());
+                // Assign name to secret santa map
+                secretSantaMap.put(secretSanta.getName(), riggedName);
+            }
+            else
+            {
+                String assignedName = this.assignSecretSanta(secretSanta);
+                
+                // Assign name to secret santa map
+                secretSantaMap.put(secretSanta.getName(), assignedName);
+                
+                // Mark the map of taken names as true (taken)
+                this.takenNames.replace(assignedName, true);
+            }
         }
         
         // Convert map to a list displayable on the generated table
@@ -105,9 +134,9 @@ public class SecretSantaGenerator
         for (Map.Entry<String, Boolean> entry : this.takenNames.entrySet())
         {
             String takenName = entry.getKey();
-            Boolean isNotTaken = entry.getValue();
+            Boolean isTaken = entry.getValue();
             
-            if (isNotTaken)
+            if (isTaken)
             {
                 uniqueNameList.remove(takenName);
             }
