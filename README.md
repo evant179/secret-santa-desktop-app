@@ -8,3 +8,4 @@
 * ~~After implementing new table, add dropdown selections for each row, under the "Current Year" column, to allow for result overriding.~~
 * Add button to add newcomers.
 * Add button to edit exclusions.
+* Convert popup error dialogs to Alert
