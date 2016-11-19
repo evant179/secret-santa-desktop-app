@@ -9,4 +9,5 @@
 * Add button to add newcomers.
 * Add button to edit exclusions.
 * Convert popup error dialogs to Alert
-* When opening the program, check if all names in data.csv exist as an entry in exclusions.csv
+* When opening the program, check if all names in data.csv exist as an entry in exclusions.csv (DataValidator)
+* Check if there are duplicate selections when result overriding
