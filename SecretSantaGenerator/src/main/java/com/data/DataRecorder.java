@@ -1,10 +1,14 @@
 package com.data;
 
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.gui.SecretSantaDisplayType;
 import com.opencsv.CSVReader;
@@ -12,6 +16,69 @@ import com.opencsv.CSVWriter;
 
 public class DataRecorder
 {
+    private static final Logger logger = LoggerFactory.getLogger(DataRecorder.class);
+
+    private final String dataFilePath;
+    private final String exclusionFilePath;
+    private DataReader dataReader = new DataReader();
+    private FileWriter fileWriter = null;
+    private CSVWriter csvWriter = null;
+    
+    public DataRecorder(String dataFilePath, String exclusionFilePath)
+    {
+        this.dataFilePath = dataFilePath;
+        this.exclusionFilePath = exclusionFilePath;
+    }
+    
+    public void saveNewcomerToCurrentData(String newcomerName) throws Exception
+    {
+        logger.info(
+                "Start saving newcomer[{}] to dataFilePath[{}], exclusionFilePath[{}]",
+                newcomerName, this.dataFilePath, this.exclusionFilePath);
+
+        // check if name already exists in the data file
+        if (this.dataReader.isDuplicateName(this.dataFilePath, newcomerName))
+        {
+            final String message = String.format("[%s] is a duplicate name.",
+                    newcomerName);
+            logger.error(message);
+            throw new Exception(message);
+        }
+        
+        // get number of years first so the CSVReader can safely read and close
+        // before a write is attempted below
+        int numberYearsCompleted = this.dataReader
+                .getNumberYearsCompleted(this.dataFilePath);
+        if (numberYearsCompleted <= 0)
+        {
+            final String message = String.format(
+                    "Invalid numberYearsCompleted[%s]. Cannot save newcomer[%s].",
+                    numberYearsCompleted, newcomerName);
+            logger.error(message);
+            throw new Exception(message);
+        }
+
+        // Create new row to be appended on data file
+        this.fileWriter = new FileWriter(this.dataFilePath, true);
+        this.csvWriter = new CSVWriter(this.fileWriter, ',',
+                CSVWriter.NO_QUOTE_CHARACTER);
+        List<String> newcomerDataRow = this.createNewcomerDataRow(newcomerName, numberYearsCompleted);
+        this.csvWriter.writeNext(newcomerDataRow.toArray(new String[0]));
+        this.csvWriter.close();
+
+        // Create new row to be appended on exclusion file
+        this.fileWriter = new FileWriter(this.exclusionFilePath, true);
+        this.csvWriter = new CSVWriter(this.fileWriter, ',',
+                CSVWriter.NO_QUOTE_CHARACTER);
+        List<String> newcomerExclusionRow = this.createNewcomerExclusionRow(newcomerName);
+        this.csvWriter.writeNext(newcomerExclusionRow.toArray(new String[0]));
+        this.csvWriter.close();
+
+        logger.info(
+                "Successfully save newcomer[{}] to dataFilePath[{}], exclusionFilePath[{}]",
+                newcomerName, this.dataFilePath, this.exclusionFilePath);
+    }
+    
     /**
      * Append new secret santa results onto the current data
      * 
@@ -90,6 +157,34 @@ public class DataRecorder
         }
 
         writer.close();
+    }
+
+    public String getDataFilePath()
+    {
+        return this.dataFilePath;
+    }
+    
+    public String getExclusionFilePath()
+    {
+        return this.exclusionFilePath;
+    }
+
+    private List<String> createNewcomerDataRow(String newcomerName, int numberEmptyQuotes)
+    {
+        List<String> newcomerRow = new ArrayList<String>();
+        newcomerRow.add(newcomerName);
+        for (int i = 0; i < numberEmptyQuotes; i++)
+        {
+            newcomerRow.add("");
+        }
+        return newcomerRow;
+    }
+
+    private List<String> createNewcomerExclusionRow(String newcomerName)
+    {
+        List<String> newcomerRow = new ArrayList<String>();
+        newcomerRow.add(newcomerName);
+        return newcomerRow;
     }
 
     private void checkRowSize(int rowSize, List<String> list)

@@ -30,6 +30,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
@@ -48,12 +50,17 @@ public class SecretSantaGui extends Application
     private Stage primaryStage;
     private DataRecorder dataRecorder;
     private DataReader dataReader;
-    
-    private List<SecretSantaDisplayType2> secretSantaDisplayList;
+
+    private final FlowPane checkBoxesPane = new FlowPane();
     private final List<CheckBox> checkBoxList = new ArrayList<CheckBox>();
     private final Button generateButton = new Button("Generate!");
+    private final Button resetButton = new Button("Reset");
     private final Button saveButton = new Button("Save!");
+    private final Button addNewcomerButton = new Button("Add Newcomer");
+    private final ToggleButton overrideToggle = new ToggleButton(
+            Constants.OVERRIDE_BUTTON_ENABLE);
     private MainTableView mainTableView;
+    private final SimpleDialogCreator simpleDialogCreator = new SimpleDialogCreator();
 
     public static void main(String[] args)
     {
@@ -64,14 +71,16 @@ public class SecretSantaGui extends Application
     public void start(Stage stage) throws Exception
     {
         this.primaryStage = stage;
-        this.dataRecorder = new DataRecorder();
+        this.dataRecorder = new DataRecorder(Constants.DATA_FILE_PATH,
+                Constants.EXCLUSION_FILE_PATH);
         this.dataReader = new DataReader();
         
+        final List<SecretSantaDisplayType2> secretSantaDisplayList;
         try
         {
-            this.secretSantaDisplayList = this.dataReader.parseRawDataFileWithExclusions(
+            secretSantaDisplayList = this.dataReader.parseRawDataFileWithExclusions(
                     Constants.DATA_FILE_PATH, Constants.EXCLUSION_FILE_PATH);
-            this.mainTableView = new MainTableView(this.secretSantaDisplayList);
+            this.mainTableView = new MainTableView(secretSantaDisplayList);
         }
         catch (FileNotFoundException e)
         {
@@ -94,23 +103,31 @@ public class SecretSantaGui extends Application
 //        border.setTop(buttonPane);
         border.setRight(this.addMenuSelectionPane(border));
 //        BorderPane.setAlignment(btn, Pos.CENTER);
-        
-        border.setCenter(addCheckBoxes());
+
+        this.initializeCheckBoxesPane(secretSantaDisplayList);
+        border.setCenter(this.checkBoxesPane);
         
         border.setBottom(this.mainTableView);
         
-        this.primaryStage.setScene(new Scene(border, 1200, 700));
+        this.primaryStage.setScene(new Scene(border, 1200, 750));
         this.primaryStage.show();
     }
     
-    private FlowPane addCheckBoxes()
+    private void initializeCheckBoxesPane(List<SecretSantaDisplayType2> secretSantaDisplayList)
     {
-        FlowPane flowPane = new FlowPane();
-        flowPane.setMinWidth(200);
-        flowPane.setPadding(new Insets(10,0,10,0));
-        flowPane.setVgap(5);
-        
-        for(SecretSantaDisplayType2 secretSanta : this.secretSantaDisplayList)
+        this.checkBoxesPane.setMinWidth(200);
+        this.checkBoxesPane.setPadding(new Insets(10,0,10,0));
+        this.checkBoxesPane.setVgap(5);
+
+        this.loadCheckBoxList(secretSantaDisplayList);
+        this.checkBoxesPane.getChildren().addAll(this.checkBoxList);
+    }
+    
+    private void loadCheckBoxList(List<SecretSantaDisplayType2> secretSantaDisplayList)
+    {
+        this.checkBoxList.clear();
+
+        for (SecretSantaDisplayType2 secretSanta : secretSantaDisplayList)
         {
             CheckBox checkbox = new CheckBox(secretSanta.getName());
             checkbox.setUserData(secretSanta);
@@ -118,65 +135,44 @@ public class SecretSantaGui extends Application
             checkbox.setMinWidth(100);
             checkbox.setMaxWidth(100);
             checkbox.setPrefWidth(100);
-//            if ((secretSanta.getName()).equals("KEN"))
-//            {
-//                checkbox.setSelected(false);
-//            }
-//            else
-//            {
+            //            if ((secretSanta.getName()).equals("KEN"))
+            //            {
+            //                checkbox.setSelected(false);
+            //            }
+            //            else
+            //            {
             checkbox.setSelected(true);
-//            }
-            checkbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            //            }
+            checkbox.selectedProperty().addListener(new ChangeListener<Boolean>()
+            {
                 public void changed(ObservableValue<? extends Boolean> ov,
-                    Boolean oldValue, Boolean newValue) {
-                        if (newValue)
-                        {
-                            SecretSantaDisplayType2 attendee =
-                                    (SecretSantaDisplayType2) checkbox.getUserData();
-                            logger.info("include attendee [{}]", attendee.getName());
-                            mainTableView.addAttendee(attendee);
-                        }
-                        else
-                        {
-                            SecretSantaDisplayType2 attendee =
-                                    (SecretSantaDisplayType2) checkbox.getUserData();
-                            logger.info("remove attendee [{}]", attendee.getName());
-                            mainTableView.removeAttendee(attendee.getName());
-                        }
+                        Boolean oldValue, Boolean newValue)
+                {
+                    if (newValue)
+                    {
+                        SecretSantaDisplayType2 attendee = (SecretSantaDisplayType2) checkbox
+                                .getUserData();
+                        logger.info("include attendee [{}]", attendee.getName());
+                        mainTableView.addAttendee(attendee);
+                    }
+                    else
+                    {
+                        SecretSantaDisplayType2 attendee = (SecretSantaDisplayType2) checkbox
+                                .getUserData();
+                        logger.info("remove attendee [{}]", attendee.getName());
+                        mainTableView.removeAttendee(attendee.getName());
+                    }
                 }
             });
-            flowPane.getChildren().add(checkbox);
             this.checkBoxList.add(checkbox);
         }
-        
-//        // test
-//        for(int i = 0; i < 10; i++)
-//        {
-//            CheckBox checkbox = new CheckBox("test");
-//            checkbox.setSelected(true);
-//            checkbox.setMinWidth(100);
-//            checkbox.setMaxWidth(100);
-//            checkbox.setPrefWidth(100);
-//            flowPane.getChildren().add(checkbox);
-//        }
-        
-        return flowPane;
     }
-    
-    
-    private void lockCheckBoxes()
+
+    private void setDisableCheckBoxes(boolean isDisable)
     {
         for (CheckBox checkBox : this.checkBoxList)
         {
-            checkBox.setDisable(true);
-        }
-    }
-    
-    private void unlockCheckBoxes()
-    {
-        for (CheckBox checkBox : this.checkBoxList)
-        {
-            checkBox.setDisable(false);
+            checkBox.setDisable(isDisable);
         }
     }
     
@@ -284,7 +280,7 @@ public class SecretSantaGui extends Application
         }
         
         // TODO add a SUCCESS/FAIL label that displays after writing
-        // a new method that checks if everyone is accounted for
+        // a new method that checks if everyone is accounted for (DataValidator)
         
         return secretSantaTableList;
     }
@@ -336,8 +332,9 @@ public class SecretSantaGui extends Application
     {
         BorderPane buttonPane = new BorderPane();
         
-        VBox buttonColumn = new VBox(10);
-        buttonColumn.setPadding(new Insets(10,10,5,10));
+        // ============= first button column =============
+        VBox firstButtonColumn = new VBox(10);
+        firstButtonColumn.setPadding(new Insets(10,10,5,10));
         
         // generate button
         this.generateButton.setMinWidth(80);
@@ -345,35 +342,121 @@ public class SecretSantaGui extends Application
             @Override
             public void handle(ActionEvent event) {
                 generateButton.setDisable(true);
-                lockCheckBoxes();
+                addNewcomerButton.setDisable(true);
+                overrideToggle.setDisable(true);
+                setDisableCheckBoxes(true);
                 updateSecretSantasOnMainTableView();
             }
         });
-        buttonColumn.getChildren().add(this.generateButton);
+        firstButtonColumn.getChildren().add(this.generateButton);
         
         // reset button
-        Button resetButton = new Button();
-        resetButton.setText("Reset");
-        resetButton.setMinWidth(80);
-        resetButton.setOnAction(new EventHandler<ActionEvent>() {
+        this.resetButton.setMinWidth(80);
+        this.resetButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 mainTableView.resetCurrentYearColumnSelections();
-                mainTableView.setEditable(true);
                 generateButton.setDisable(false);
+                addNewcomerButton.setDisable(false);
+                overrideToggle.setDisable(false);
                 saveButton.setDisable(true);
-                unlockCheckBoxes();
+                setDisableCheckBoxes(false);
                 // TODO check all checkboxes too? verify listenrs are hit
             }
         });
-        buttonColumn.getChildren().add(resetButton);
+        firstButtonColumn.getChildren().add(resetButton);
         
         // save button
         this.saveButton.setMinWidth(80);
         this.saveButton.setDisable(true);
-        buttonColumn.getChildren().add(this.saveButton);
+        firstButtonColumn.getChildren().add(this.saveButton);
         
-        buttonPane.setLeft(buttonColumn);
+        // set button column to left of border pane
+        buttonPane.setLeft(firstButtonColumn);
+        
+        // ============= second button column =============
+        VBox secondButtonColumn = new VBox(10);
+        secondButtonColumn.setPadding(new Insets(10,10,5,10));
+        
+        // newcomer button
+        this.addNewcomerButton.setMinWidth(80);
+        this.addNewcomerButton.setOnAction(e -> this.processNewcomer());
+        secondButtonColumn.getChildren().add(this.addNewcomerButton);
+        
+        // override toggle button
+        this.overrideToggle.setMinWidth(80);
+        this.overrideToggle.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                toggleOverrideMode();
+            }
+        });
+        secondButtonColumn.getChildren().add(this.overrideToggle);
+        
+        // set button column to right of border pane
+        buttonPane.setRight(secondButtonColumn);
+        
         return buttonPane;
+    }
+
+    private void processNewcomer()
+    {
+        AddNewcomerDialog addNewcomerDialog =
+                new AddNewcomerDialog(this.dataRecorder);
+        boolean didSaveOccur = addNewcomerDialog.showAndProcessResult();
+        if (didSaveOccur)
+        {
+            this.refreshProgram();
+        }
+        else
+        {
+            logger.info("No newcomer saved. No refresh needed.");
+        }
+    }
+
+    /**
+     * Refresh program's data:
+     * 1. Checkboxes
+     * 2. Table
+     * 
+     * Should be called after ANY modification to data.csv and exclusions.csv
+     */
+    private void refreshProgram()
+    {
+        logger.info("Start refreshing program with updated data");
+        try
+        {
+            // read updated data file
+            final List<SecretSantaDisplayType2> secretSantaDisplayList;
+            secretSantaDisplayList = this.dataReader.parseRawDataFileWithExclusions(
+                    Constants.DATA_FILE_PATH, Constants.EXCLUSION_FILE_PATH);
+
+            // update checkboxes
+            this.loadCheckBoxList(secretSantaDisplayList);
+            this.checkBoxesPane.getChildren().clear();
+            this.checkBoxesPane.getChildren().addAll(this.checkBoxList);
+
+            // update table
+            this.mainTableView.refreshTableData(secretSantaDisplayList);
+            logger.info("Successfully refreshed program with updated data");
+        }
+        catch (IOException e)
+        {
+            logger.error("Error refreshing program: ", e);
+            this.simpleDialogCreator.showSimpleDialog(AlertType.ERROR, String
+                    .format(Constants.MAIN_DIALOG_REFRESH_ERROR, e.getMessage()));
+        }
+    }
+
+    private void toggleOverrideMode()
+    {
+        this.mainTableView.toggleEditMode();
+        boolean isEditMode = this.mainTableView.isEditable();
+        this.setDisableCheckBoxes(isEditMode);
+        this.generateButton.setDisable(isEditMode);
+        this.resetButton.setDisable(isEditMode);
+        this.addNewcomerButton.setDisable(isEditMode);
+        this.overrideToggle.setText(isEditMode ? Constants.OVERRIDE_BUTTON_DISABLE
+                : Constants.OVERRIDE_BUTTON_ENABLE);
     }
 }

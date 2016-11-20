@@ -41,7 +41,7 @@ public class DataRecorderTest
     public void testSave1() throws IOException
     {
         File dataFile = new File(getClass().getResource(TEST_DATA2_FILE_PATH).getFile());
-        DataRecorder dataRecorder = new DataRecorder();
+        DataRecorder dataRecorder = new DataRecorder(dataFile.getPath(), TEST_EXCLUSIONS1_FILE_PATH);
         List<SecretSantaDisplayType> testList = createTestSecretSantaDisplayList();
 
         CSVWriter mockWriter = mock(CSVWriter.class);
@@ -113,7 +113,7 @@ public class DataRecorderTest
     public void testSave2() throws IOException
     {
         File dataFile = new File(getClass().getResource(TEST_DATA2_FILE_PATH).getFile());
-        DataRecorder dataRecorder = new DataRecorder();
+        DataRecorder dataRecorder = new DataRecorder(dataFile.getPath(), TEST_EXCLUSIONS1_FILE_PATH);
         List<SecretSantaDisplayType> testList = createTestSecretSantaDisplayListWithNewcomers();
 
         CSVWriter mockWriter = mock(CSVWriter.class);

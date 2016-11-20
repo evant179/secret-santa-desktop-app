@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.generator.SecretSanta;
+import com.gui.Constants;
 import com.gui.SecretSantaDisplayType2;
 import com.opencsv.CSVReader;
 
@@ -30,7 +31,7 @@ public class DataReader
     public List<SecretSanta> parseDataFileWithExclusionFile(String dataFilePath,
             String exclusionFilePath) throws FileNotFoundException, IOException
     {
-        // TODO parsing into tokens: http://howtodoinjava.com/2013/05/27/parse-csv-files-in-java/
+        // parsing into tokens: http://howtodoinjava.com/2013/05/27/parse-csv-files-in-java/
         final List<SecretSanta> secretSantaList = new ArrayList<SecretSanta>();
         ExclusionReader exclusionReader = new ExclusionReader(exclusionFilePath);
         String[] tokens = null;
@@ -105,7 +106,8 @@ public class DataReader
     }
 
     /**
-     * Parse raw data, including empty tokens, returning an object for the MainTableView
+     * Parse raw data, INCLUDING empty tokens (""),
+     * returning an object for the MainTableView
      * 
      * @param dataFilePath
      * @param exclusionFilePath
@@ -186,7 +188,6 @@ public class DataReader
      * Parse year data from data file
      * 
      * @param dataFilePath
-     * @param exclusionFilePath
      * @return
      * @throws FileNotFoundException
      * @throws IOException
@@ -215,5 +216,57 @@ public class DataReader
         reader.close();
 
         return yearList;
+    }
+
+    public boolean isDuplicateName(String dataFilePath, String name)
+            throws FileNotFoundException, IOException
+    {
+        boolean isDuplicate = false;
+        // TODO make own method later than using the below one
+        List<SecretSanta> dataList = this.parseDataFileWithExclusionFile(dataFilePath,
+                Constants.EXCLUSION_FILE_PATH);
+        for (SecretSanta entry : dataList)
+        {
+            if (entry.getName().equals(name))
+            {
+                logger.info("Duplicate found in existing data for [{}]", name);
+                isDuplicate = true;
+                break;
+            }
+        }
+        return isDuplicate;
+    }
+
+    /**
+     * Return the number of years completed
+     * 
+     * @param dataFilePath
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public int getNumberYearsCompleted(String dataFilePath)
+            throws FileNotFoundException, IOException
+    {
+        int yearCount = 0;
+
+        // Create the file reader
+        CSVReader reader = new CSVReader(new FileReader(dataFilePath));
+
+        // Read only the first line of the file, expecting to retrieve year data
+        String[] tokens = reader.readNext();
+
+        for (String token : tokens)
+        {
+            if ((tokens.length > 0) && (!(token.charAt(0) == '#')))
+            {
+                yearCount++;
+            }
+        }
+
+        reader.close();
+
+        logger.info("Number of years completed: [{}]", yearCount);
+        return yearCount;
     }
 }

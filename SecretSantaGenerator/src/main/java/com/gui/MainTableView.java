@@ -19,7 +19,6 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.util.Callback;
 
 /**
  * Table for viewing secret santa data
@@ -29,6 +28,10 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
     private static final Logger logger = LoggerFactory.getLogger(MainTableView.class);
 
     private DataReader dataReader = new DataReader();
+    /**
+     * Runnable to cancel combobox editting mode when toggling override mode
+     */
+    private Runnable cancelCombobox = null;
 
     private static final String CURRENT_YEAR_COLUMN_NAME = "%s [Current Year]";
     private int currentYearIndex;
@@ -44,24 +47,55 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
     public MainTableView(List<SecretSantaDisplayType2> secretSantaDisplayList)
             throws FileNotFoundException, IOException
     {
-        this.setEditable(true); // allows dropdown boxes to appear on "current year" column
+        this.setEditable(false);
 
-        this.setMinHeight(700);
-        this.setMaxHeight(700);
-        this.setPrefHeight(700);
-
-        this.constructColumns();
-
-        this.constructRows(secretSantaDisplayList);
-
+        this.setMinHeight(750);
+        this.setMaxHeight(750);
+        this.setPrefHeight(750);
         this.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        this.constructTable(secretSantaDisplayList);
+    }
+    
+    /**
+     * Refresh entire table's data.
+     * 
+     * Should be called after ANY modification to data.csv and exclusions.csv
+     * 
+     * @param secretSantaDisplayList
+     * @throws IOException 
+     * @throws FileNotFoundException 
+     */
+    public void refreshTableData(List<SecretSantaDisplayType2> secretSantaDisplayList) throws FileNotFoundException, IOException
+    {
+        logger.info("Refresh table");
+        this.getColumns().removeAll(this.getColumns());
+        this.constructTable(secretSantaDisplayList);
+    }
+    
+    public void toggleEditMode()
+    {
+        logger.info("toggleEditMode to [{}]", !this.isEditable());
+
+        // cancel edit mode for combobox if open
+        if (cancelCombobox != null)
+        {
+            cancelCombobox.run();
+        }
+
+        // update editable status
+        this.setEditable(!this.isEditable());
+
+        // TODO update cell colors
+
+        logger.info("toggleEditMode end");
     }
 
     public void resetCurrentYearColumnSelections()
     {
         //        this.debugCurrentYearSelection("before reset button");
 
-        logger.info("reset table");
+        logger.info("Reset table");
         // reset selected values to null for current year
         for (SecretSantaDisplayType2 displayType : this.getItems())
         {
@@ -73,6 +107,12 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
         //                this.getItems().removeAll(this.getItems());
         //                this.getItems().addAll(FXCollections
         //                        .observableArrayList(this.secretSantaDisplayList));
+
+        // THIS FIXES A BUG
+        @SuppressWarnings("unchecked")
+        TableColumn<SecretSantaDisplayType2, String> lastColumn = (TableColumn<SecretSantaDisplayType2, String>) // cast
+        this.getColumns().get(getColumns().size() - 1);
+        lastColumn.setCellValueFactory(null);
 
         this.refresh();
 
@@ -115,6 +155,7 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
             }
         }
 
+        @SuppressWarnings("unchecked")
         TableColumn<SecretSantaDisplayType2, String> lastColumn = (TableColumn<SecretSantaDisplayType2, String>) // cast
         this.getColumns().get(getColumns().size() - 1);
         lastColumn.setCellValueFactory(cellData -> cellData.getValue()
@@ -122,6 +163,13 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
 
         this.setEditable(false);
         this.refresh();
+    }
+
+    private void constructTable(List<SecretSantaDisplayType2> secretSantaDisplayList)
+            throws FileNotFoundException, IOException
+    {
+        this.constructColumns();
+        this.constructRows(secretSantaDisplayList);
     }
 
     private void constructColumns() throws FileNotFoundException, IOException
@@ -157,16 +205,10 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
                 String.format(CURRENT_YEAR_COLUMN_NAME, currentYear));
 
         // when selected, enable dropdown
-        currentYearColumn.setCellFactory(
-                new Callback<TableColumn<SecretSantaDisplayType2, String>, TableCell<SecretSantaDisplayType2, String>>()
-                {
-                    @Override
-                    public TableCell<SecretSantaDisplayType2, String> call(
-                            TableColumn<SecretSantaDisplayType2, String> p)
-                    {
-                        return new ComboBoxCell();
-                    }
-                });
+        currentYearColumn.setCellFactory(p ->
+        {
+            return new ComboBoxCell();
+        });
 
         // when name from dropdown is selected, update row data
         currentYearColumn.setOnEditCommit(
@@ -220,6 +262,7 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
         logger.info("current year index: {}", this.currentYearIndex);
     }
 
+    @SuppressWarnings("unused")
     private void debugCurrentYearSelection(String message)
     {
         for (SecretSantaDisplayType2 displayType : getItems())
@@ -233,7 +276,7 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
     private class ComboBoxCell extends TableCell<SecretSantaDisplayType2, String>
     {
         private ComboBox<String> comboBox;
-
+        
         public ComboBoxCell()
         {
             comboBox = new ComboBox<>();
@@ -244,6 +287,7 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
         {
             if (!isEmpty())
             {
+                logger.info("combobox startEdit");
                 super.startEdit();
 
                 List<String> attendeeList = Utility.convertList(getTableView().getItems(),
@@ -251,6 +295,7 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
                 logger.info("create dropdown - initial attendees [{}]", attendeeList);
                 SecretSantaDisplayType2 currentRow = getTableView().getItems()
                         .get(getIndex());
+                logger.info("combobox startEdit for: {}", currentRow.getName());
                 attendeeList.remove(currentRow.getName());
                 for (SimpleStringProperty previousSecretSanta : currentRow
                         .getSecretSantaList())
@@ -278,10 +323,16 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
                     String selectedName = comboBox.getSelectionModel().getSelectedItem();
                     if (selectedName != null && !selectedName.isEmpty())
                     {
-                        logger.info("ComboBox Action: {})", selectedName);
+                        logger.info("ComboBox selected name: {})", selectedName);
                         commitEdit(selectedName);
                     }
                 });
+                
+                cancelCombobox = () -> 
+                {
+                    logger.info("combo call cancelEdit from runnable");
+                    cancelEdit();
+                };
 
                 setText(null);
                 setGraphic(comboBox);
@@ -291,8 +342,10 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
         @Override
         public void cancelEdit()
         {
-            logger.info("cancel edit called");
+            logger.info("combobox cancelEdit");
             super.cancelEdit();
+
+            cancelCombobox = null;
 
             setText(getTableView().getItems().get(getIndex()).getSecretSantaList()
                     .get(currentYearIndex).getValue());
