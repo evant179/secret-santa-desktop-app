@@ -104,6 +104,88 @@ public class DataReader
 
         return secretSantaList;
     }
+    
+    /**
+     * Parse and merge data file and exclusion file, returning a list of
+     * SecretSanta
+     * 
+     * TODO refactor this!
+     * 
+     * @param dataFilePath
+     * @param exclusionFilePath
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public List<SecretSanta> parseDataFileWithExclusionFileForExclusionDialog(String dataFilePath,
+            String exclusionFilePath) throws FileNotFoundException, IOException
+    {
+        // parsing into tokens: http://howtodoinjava.com/2013/05/27/parse-csv-files-in-java/
+        final List<SecretSanta> secretSantaList = new ArrayList<SecretSanta>();
+        ExclusionReader exclusionReader = new ExclusionReader(exclusionFilePath);
+        String[] tokens = null;
+
+        // Create the file reader
+        CSVReader reader = new CSVReader(new FileReader(dataFilePath));
+
+        // Read the file line by line
+        while ((tokens = reader.readNext()) != null)
+        {
+            String name = null;
+            final List<String> excludedNames = new ArrayList<String>();
+
+            // Check if tokens are not empty
+            // and doesn't start with '#' (we're skipping these lines)
+            if ((tokens.length > 0) && (!((tokens[0]).charAt(0) == '#')))
+            {
+                for (String token : tokens)
+                {
+                    String currentData = token.toUpperCase();
+
+                    if ((currentData == null) || (currentData.isEmpty()))
+                    {
+                        // skip
+                    }
+                    else if (name == null)
+                    {
+                        // Assign the first data entry of the row as the name
+                        name = currentData;
+                        break;
+                    }
+//                    else
+//                    {
+//                        // Add the remaining data entries as excludedNames
+//                        excludedNames.add(currentData);
+//                    }
+                }
+
+                if (name != null)
+                {
+                    List<String> exclusionListFromFile = exclusionReader
+                            .getNameToExclusionListMap().get(name);
+                    if (null != exclusionListFromFile)
+                    {
+                        for (String excludedNameFromFile : exclusionListFromFile)
+                        {
+                            if (!excludedNames.contains(excludedNameFromFile))
+                            {
+                                excludedNames.add(excludedNameFromFile);
+                            }
+                        }
+                    }
+                }
+
+                // Create SecretSanta for each row entry
+                SecretSanta secretSanta = new SecretSanta(name, excludedNames);
+                // Add SecretSanta to list to be returned
+                secretSantaList.add(secretSanta);
+            }
+        }
+
+        reader.close();
+
+        return secretSantaList;
+    }
 
     /**
      * Parse raw data, INCLUDING empty tokens (""),
@@ -236,7 +318,7 @@ public class DataReader
         }
         return isDuplicate;
     }
-
+    
     /**
      * Return the number of years completed
      * 

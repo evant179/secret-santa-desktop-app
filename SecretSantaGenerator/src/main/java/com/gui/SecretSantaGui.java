@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import org.controlsfx.control.ListSelectionView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,9 +56,10 @@ public class SecretSantaGui extends Application
     private final FlowPane checkBoxesPane = new FlowPane();
     private final List<CheckBox> checkBoxList = new ArrayList<CheckBox>();
     private final Button generateButton = new Button("Generate!");
-    private final Button resetButton = new Button("Reset");
+    private final Button resetButton = new Button("Clear Results");
     private final Button saveButton = new Button("Save!");
     private final Button addNewcomerButton = new Button("Add Newcomer");
+    private final Button editExclusionButton = new Button(Constants.EXCLUSION_BUTTON_NAME);
     private final ToggleButton overrideToggle = new ToggleButton(
             Constants.OVERRIDE_BUTTON_ENABLE);
     private MainTableView mainTableView;
@@ -202,7 +205,7 @@ public class SecretSantaGui extends Application
         List<SecretSanta> secretSantaList = null;
         try
         {
-            secretSantaList = dataReader.parseDataFileWithExclusionFile(
+            secretSantaList = this.dataReader.parseDataFileWithExclusionFile(
                     Constants.DATA_FILE_PATH, Constants.EXCLUSION_FILE_PATH);
             manageAttendees(secretSantaList);
             this.overrideSecretSantaSelections(secretSantaList);
@@ -229,11 +232,8 @@ public class SecretSantaGui extends Application
                 numAttempts++;
                 if (numAttempts == MAX_GENERATE_ATTEMPTS)
                 {
-                    Stage dialogStage = new Stage();
-                    dialogStage.initModality(Modality.APPLICATION_MODAL);
-                    dialogStage.setScene(new Scene(VBoxBuilder.create().children(new Text(e.getMessage()))
-                            .alignment(Pos.CENTER).padding(new Insets(5)).build()));
-                    dialogStage.show();
+                    this.simpleDialogCreator.showSimpleDialog(AlertType.ERROR,
+                            e.getMessage());
                     break;
                 }
             }
@@ -263,13 +263,16 @@ public class SecretSantaGui extends Application
                                 CSVWriter.NO_QUOTE_CHARACTER);
                         dataRecorder.save(recordList, Constants.DATA_FILE_PATH,
                                 writer);
+                        logger.info("Successfully saved current year data: ");
+                        simpleDialogCreator.showSimpleDialog(AlertType.INFORMATION,
+                                String.format("Successfully saved to [%s] !", Constants.OUTPUT_FILE_PATH));
                         saveButton.setDisable(true);
                     }
                     catch (IOException e)
                     {
-                        // TODO show error window
-                        e.printStackTrace();
-                        System.out.println("ERROR SAVING CURRENT YEAR DATA");
+                        logger.error("Error saving current year data: ", e);
+                        simpleDialogCreator.showSimpleDialog(AlertType.ERROR,
+                                "Error saving current year data.");
                     }
                 }
             });
@@ -343,6 +346,7 @@ public class SecretSantaGui extends Application
             public void handle(ActionEvent event) {
                 generateButton.setDisable(true);
                 addNewcomerButton.setDisable(true);
+                editExclusionButton.setDisable(true);
                 overrideToggle.setDisable(true);
                 setDisableCheckBoxes(true);
                 updateSecretSantasOnMainTableView();
@@ -358,6 +362,7 @@ public class SecretSantaGui extends Application
                 mainTableView.resetCurrentYearColumnSelections();
                 generateButton.setDisable(false);
                 addNewcomerButton.setDisable(false);
+                editExclusionButton.setDisable(false);
                 overrideToggle.setDisable(false);
                 saveButton.setDisable(true);
                 setDisableCheckBoxes(false);
@@ -382,6 +387,11 @@ public class SecretSantaGui extends Application
         this.addNewcomerButton.setMinWidth(80);
         this.addNewcomerButton.setOnAction(e -> this.processNewcomer());
         secondButtonColumn.getChildren().add(this.addNewcomerButton);
+        
+        // exclusion button
+        this.editExclusionButton.setMinWidth(80);
+        this.editExclusionButton.setOnAction(e -> this.processExclusions());
+        secondButtonColumn.getChildren().add(this.editExclusionButton);
         
         // override toggle button
         this.overrideToggle.setMinWidth(80);
@@ -412,6 +422,57 @@ public class SecretSantaGui extends Application
         {
             logger.info("No newcomer saved. No refresh needed.");
         }
+    }
+
+    private void processExclusions()
+    {
+        try
+        {
+            // read data and exclusions files (rather than get current state because
+            // the tables will be missing data if checkboxes are unchecked)
+            List<SecretSanta> secretSantaList = this.dataReader
+                    .parseDataFileWithExclusionFileForExclusionDialog(
+                            Constants.DATA_FILE_PATH, Constants.EXCLUSION_FILE_PATH);
+            // ask user to select which secret santa's exclusions to edit
+            AttendeeChoiceDialog attendeeChoiceDialog = new AttendeeChoiceDialog(
+                    secretSantaList);
+            Optional<SecretSanta> result = attendeeChoiceDialog.showAndWait();
+            if (result.isPresent())
+            {
+                SecretSanta attendeeToEdit = result.get();
+                logger.info("AttendeeChoiceDialog result is present for exclusion "
+                        + "edit: [{}]", attendeeToEdit.getName());
+                EditExclusionDialog editExclusionDialog = new EditExclusionDialog(
+                        attendeeToEdit, this.extractListOfNames(secretSantaList));
+                Optional<SecretSanta> updatedResult = editExclusionDialog.showAndWait();
+                if (updatedResult.isPresent())
+                {
+                    // save updated exclusions for selected secret santa
+                    this.dataRecorder.updateExclusionFile(updatedResult.get());
+                    this.simpleDialogCreator.showSimpleDialog(AlertType.INFORMATION,
+                            String.format(Constants.EDIT_EXCLUSION_DIALOG_SUCCESS,
+                                    updatedResult.get().getName()));
+                    this.refreshProgram();
+                }
+                else
+                {
+                    logger.info("No selection occured for edit exclusions.");
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            logger.error("Error editting exclusions: ", e);
+            this.simpleDialogCreator.showSimpleDialog(AlertType.ERROR,
+                    String.format(Constants.GENERIC_EXCLUSION_ERROR, e.getMessage()));
+        }
+    }
+
+    private List<String> extractListOfNames(List<SecretSanta> secretSantaList)
+    {
+        List<String> nameList = new ArrayList<String>();
+        secretSantaList.forEach(s -> nameList.add(s.getName()));
+        return nameList;
     }
 
     /**
@@ -456,6 +517,7 @@ public class SecretSantaGui extends Application
         this.generateButton.setDisable(isEditMode);
         this.resetButton.setDisable(isEditMode);
         this.addNewcomerButton.setDisable(isEditMode);
+        this.editExclusionButton.setDisable(isEditMode);
         this.overrideToggle.setText(isEditMode ? Constants.OVERRIDE_BUTTON_DISABLE
                 : Constants.OVERRIDE_BUTTON_ENABLE);
     }

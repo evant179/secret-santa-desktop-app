@@ -1,5 +1,6 @@
 package com.data;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.generator.SecretSanta;
 import com.gui.SecretSantaDisplayType;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
@@ -23,6 +25,8 @@ public class DataRecorder
     private DataReader dataReader = new DataReader();
     private FileWriter fileWriter = null;
     private CSVWriter csvWriter = null;
+    private FileReader fileReader = null;
+    private CSVReader csvReader = null;
     
     public DataRecorder(String dataFilePath, String exclusionFilePath)
     {
@@ -77,6 +81,86 @@ public class DataRecorder
         logger.info(
                 "Successfully save newcomer[{}] to dataFilePath[{}], exclusionFilePath[{}]",
                 newcomerName, this.dataFilePath, this.exclusionFilePath);
+    }
+
+    public void updateExclusionFile(SecretSanta secretSanta) throws IOException
+    {
+        logger.info("Start updating EXCLUSION list for[{}] to exclusionFilePath[{}]",
+                secretSanta.getName(), this.exclusionFilePath);
+
+        // =========== read file and put udpated data in updatedExclusionData ===========
+        this.fileReader = new FileReader(this.exclusionFilePath);
+        this.csvReader = new CSVReader(new FileReader(this.exclusionFilePath));
+        List<List<String>> updatedExclusionData = new ArrayList<List<String>>();
+
+        String[] entries = null;
+        while ((entries = this.csvReader.readNext()) != null)
+        {
+            List<String> currentRow = Arrays.asList(entries); // Arrays.asList(entries) is unnmodifiable
+            currentRow = new ArrayList<String>(currentRow); // Convert to ArrayList to be modifiable
+
+            if (currentRow.get(0).equals(secretSanta.getName()))
+            {
+                // current row matches secret santa.
+                currentRow.clear();
+                currentRow.add(secretSanta.getName());
+                for (String excludedName : secretSanta.getExcludedNames())
+                {
+                    currentRow.add(excludedName);
+                }
+            }
+            else if (secretSanta.getExcludedNames().contains(currentRow.get(0)))
+            {
+                // current row is part of secret santa's exclusion list.
+                // if x excludes y, make sure y excludes x
+                List<String> updatedRow = new ArrayList<String>(currentRow);
+                currentRow.clear();
+                boolean isAlreadyExcludingSecretSanta = false;
+                for (String excludedName : updatedRow)
+                {
+                    if (excludedName != null && !excludedName.isEmpty())
+                    {
+                        if (secretSanta.getName().equals(excludedName))
+                        {
+                            isAlreadyExcludingSecretSanta = true;
+                        }
+                        currentRow.add(excludedName);
+                    }
+                }
+                if (!isAlreadyExcludingSecretSanta)
+                {
+                    currentRow.add(secretSanta.getName());
+                }
+            }
+            else if (currentRow.contains(secretSanta.getName()))
+            {
+                // current row is NOT part of secret santa's exclusion list.
+                // if x no longer excludes y, make sure y no longer excludes x
+                currentRow.remove(secretSanta.getName());
+            }
+
+            updatedExclusionData.add(currentRow);
+        }
+        this.csvReader.close();
+
+        // =========== delete old data from file ===========
+        this.fileWriter = new FileWriter(this.exclusionFilePath);
+        this.fileWriter.write("");
+        this.fileWriter.close();
+
+        // =========== save updated data to file ===========
+        this.fileWriter = new FileWriter(this.exclusionFilePath, true);
+        this.csvWriter = new CSVWriter(this.fileWriter, ',',
+                CSVWriter.NO_QUOTE_CHARACTER);
+        for (List<String> row : updatedExclusionData)
+        {
+            this.csvWriter.writeNext(row.toArray(new String[0]));
+        }
+        this.csvWriter.close();
+
+        logger.info(
+                "Successfully updated EXCLUSION list for[{}] to exclusionFilePath[{}]",
+                secretSanta.getName(), this.exclusionFilePath);
     }
     
     /**

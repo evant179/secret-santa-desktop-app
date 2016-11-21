@@ -51,7 +51,7 @@ public class AddNewcomerDialog extends TextInputDialog
 
     private boolean saveNewcomer(String newcomerName)
     {
-        logger.info("Result IS present: [{}]", newcomerName);
+        logger.info("AddNewcomerDialog result is present: [{}]", newcomerName);
         boolean isSuccess = false;
         try
         {

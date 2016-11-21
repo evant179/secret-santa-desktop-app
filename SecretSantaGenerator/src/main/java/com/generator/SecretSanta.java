@@ -70,10 +70,10 @@ public class SecretSanta implements Comparable<SecretSanta>
                 if (isEquals)
                 {
                     // debug
-                    logger.info(
-                            "name[{}]excludedNames[{}]====isEqualsTo====name[{}]excludedNames[{}]",
-                            this.name, this.excludedNames, other.getName(),
-                            other.getExcludedNames());
+//                    logger.info(
+//                            "name[{}]excludedNames[{}]====isEqualsTo====name[{}]excludedNames[{}]",
+//                            this.name, this.excludedNames, other.getName(),
+//                            other.getExcludedNames());
                 }
             }
         }
