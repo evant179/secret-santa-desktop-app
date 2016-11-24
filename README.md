@@ -43,12 +43,15 @@ Note: When person_X excludes person_Y, person_Y will also be updated to exclude 
 ![exclusion3.png](https://bitbucket.org/repo/6bMx4M/images/2597791552-exclusion3.png)
 
 The "Enable Override Mode" enables the user to choose a specific name for a member (aka rig). The rules that determine what names are selectable for person_X's override dropdown are:
+
 * person_X has never received them in previous years
 * person_X does not have them in the exclusion list
 * Only the names that are currently checked for attending (using the checkboxes) can appear
+
 ![override.png](https://bitbucket.org/repo/6bMx4M/images/3286366243-override.png)
 
 Once the user finishes the above steps to:
+
 * Determine attendees
 * Add newcomers
 * Edit each member's exclusions
