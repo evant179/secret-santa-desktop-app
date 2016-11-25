@@ -93,7 +93,8 @@ public class SecretSantaGenerator
         {
             String name = entry.getKey();
             String secretSanta = entry.getValue();
-            
+            logger.info("///// [{}] ///// [{}] /////",
+                    name, secretSanta);
             displayList.add(new SecretSantaDisplayType(
                     name.toString(), secretSanta.toString()));
         }
@@ -110,9 +111,8 @@ public class SecretSantaGenerator
      */
     private String assignSecretSanta(SecretSanta secretSanta) throws GenerateException
     {
-        // debug
-        System.out.println("Looking for a secret santa for: " + secretSanta.getName() +
-                ", exclusion list size: " + secretSanta.getExcludedNames().size());
+        logger.info("Looking for a secret santa for: [{}], exclusion list size: [{}]",
+                secretSanta.getName(), secretSanta.getExcludedNames().size());
         
         // copy the secret santa list's names
         List<String> uniqueNameList = new ArrayList<String>();

@@ -9,8 +9,10 @@ public final class Constants
     public static final String MAIN_DIALOG_REFRESH_ERROR = "Program cannot refresh data. "
             + "Close the program and restart to return to a good state. Tell Evan!\n\n%s";
 
-    public static final String DATA_READ_ERROR = "Cannot read data from data file [%s] "
-            + "and exclusion file [%s]:\n\n%s";
+    public static final String DATA_READ_ERROR = "Cannot read data:\n\n%s";
+    public static final String GENERATE_RESULTS_ERROR = "Cannot generate results:\n\n%s";
+
+    public static final int MAX_GENERATE_ATTEMPTS = 100;
 
     public static final String EXCLUSION_BUTTON_NAME = "Edit Exclusions";
 
