@@ -53,13 +53,14 @@ The "Enable Override Mode" enables the user to choose a specific name for a memb
 
 ![override.png](https://bitbucket.org/repo/6bMx4M/images/3286366243-override.png)
 
-Once the user finishes the above steps to:
+Once the user finishes the above steps to...
 
 * Determine attendees
 * Add newcomers
 * Edit each member's exclusions
 * Override results
-The user can now generate the results for this year's secret santa event. The name pool for each member is decided by the rules mentioned in the above step.
+
+...The user can now generate the results for this year's secret santa event. The name pool for each member is decided by the rules mentioned in the above step.
 
 Note: Each above step is optional and is not required to simply perform a generate.
 
