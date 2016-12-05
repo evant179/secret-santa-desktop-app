@@ -12,7 +12,7 @@
 * Convert popup error dialogs to Alert
 * When opening the program, check if all names in data.csv exist as an entry in exclusions.csv (DataValidator)
 * Check if there are duplicate selections when result overriding (DataValidator)
-* Consolidate SecretSanta, SecretSantaDisplayType, and SecretSantaDisplayType2 into possibly a single data type
+* Consolidate SecretSanta, SecretSantaDisplayType, and SecretSantaDisplayType2 into possibly a single data type. Have a single type that holds both a type for generating and a type for displaying (good idea?)
 * After saving, append data.csv instead of creating new file. Refresh table afterwards
 * After hitting generate, add some kind of results screen
 * Bonus--when hovering over a name, display picture of person. And when hovering over the results column, display 2 pictures on [attendee -> secret santa result]
