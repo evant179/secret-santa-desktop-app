@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.controlsfx.control.ListSelectionView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,28 +27,20 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.VBoxBuilder;
-import javafx.scene.text.Text;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class SecretSantaGui extends Application
 {
     private static final Logger logger = LoggerFactory.getLogger(SecretSantaGui.class);
     
-    private final static int MAX_GENERATE_ATTEMPTS = 100;
-    private final static String DATA_READ_ERROR = "Cannot locate data.csv.";
-    
-    private Stage primaryStage;
     private DataRecorder dataRecorder;
     private DataReader dataReader;
 
@@ -71,9 +62,8 @@ public class SecretSantaGui extends Application
     }
 
     @Override
-    public void start(Stage stage) throws Exception
+    public void start(Stage mainStage) throws Exception
     {
-        this.primaryStage = stage;
         this.dataRecorder = new DataRecorder(Constants.DATA_FILE_PATH,
                 Constants.EXCLUSION_FILE_PATH);
         this.dataReader = new DataReader();
@@ -87,33 +77,24 @@ public class SecretSantaGui extends Application
         }
         catch (FileNotFoundException e)
         {
-            // TODO make nicer error gui window
-            Stage dialogStage = new Stage();
-            dialogStage.initModality(Modality.APPLICATION_MODAL);
-            dialogStage.setScene(new Scene(VBoxBuilder.create().children(new Text(DATA_READ_ERROR))
-                    .alignment(Pos.CENTER).padding(new Insets(5)).build()));
-            dialogStage.show();
+            logger.error("Cannot read file: ", e);
+            this.simpleDialogCreator.showSimpleDialog(AlertType.ERROR,
+                    String.format(Constants.DATA_READ_ERROR, e.getMessage()));
             return;
         }
 
-        this.primaryStage.setTitle("Secret Santa Generator");
+        mainStage.setTitle("Secret Santa Generator");
         BorderPane border = new BorderPane();
-        
-//        HBox buttonPane = new HBox(19);
-//        buttonPane.setPadding(new Insets(5,10,5,10));
-        
-        
-//        border.setTop(buttonPane);
-        border.setRight(this.addMenuSelectionPane(border));
-//        BorderPane.setAlignment(btn, Pos.CENTER);
+
+        border.setRight(this.addMenuSelectionPane());
 
         this.initializeCheckBoxesPane(secretSantaDisplayList);
         border.setCenter(this.checkBoxesPane);
         
         border.setBottom(this.mainTableView);
         
-        this.primaryStage.setScene(new Scene(border, 1200, 750));
-        this.primaryStage.show();
+        mainStage.setScene(new Scene(border, 1200, 750));
+        mainStage.show();
     }
     
     private void initializeCheckBoxesPane(List<SecretSantaDisplayType2> secretSantaDisplayList)
@@ -138,14 +119,7 @@ public class SecretSantaGui extends Application
             checkbox.setMinWidth(100);
             checkbox.setMaxWidth(100);
             checkbox.setPrefWidth(100);
-            //            if ((secretSanta.getName()).equals("KEN"))
-            //            {
-            //                checkbox.setSelected(false);
-            //            }
-            //            else
-            //            {
             checkbox.setSelected(true);
-            //            }
             checkbox.selectedProperty().addListener(new ChangeListener<Boolean>()
             {
                 public void changed(ObservableValue<? extends Boolean> ov,
@@ -188,41 +162,45 @@ public class SecretSantaGui extends Application
      */
     private void updateSecretSantasOnMainTableView()
     {
-        this.mainTableView.updateSecretSantasWithResults(
-                this.generateObservableList());
+        try
+        {
+            this.mainTableView.updateSecretSantasWithResults(
+                    this.generateObservableList());
+        }
+        catch (Exception e)
+        {
+            logger.error("Cannot generate results: ", e);
+            this.simpleDialogCreator.showSimpleDialog(AlertType.ERROR,
+                    String.format(Constants.GENERATE_RESULTS_ERROR, e.getMessage()));
+            return;
+        }
     }
     
     /**
      * Generate an observable list (rows) for the secret santa assignment table
      * 
      * @return observable list of secret santa assignments
+     * @throws IOException 
+     * @throws FileNotFoundException 
+     * @throws GenerateException 
      */
-    private ObservableList<SecretSantaDisplayType> generateObservableList()
+    private ObservableList<SecretSantaDisplayType> generateObservableList() throws FileNotFoundException, IOException, GenerateException
     {
         final ObservableList<SecretSantaDisplayType> secretSantaTableList = FXCollections.observableArrayList();
-        
-        
-        List<SecretSanta> secretSantaList = null;
-        try
-        {
-            secretSantaList = this.dataReader.parseDataFileWithExclusionFile(
-                    Constants.DATA_FILE_PATH, Constants.EXCLUSION_FILE_PATH);
-            manageAttendees(secretSantaList);
-            this.overrideSecretSantaSelections(secretSantaList);
-        }
-        catch (IOException e1)
-        {
-            // TODO throw error window
-            e1.printStackTrace();
-        }
-        
+
+        List<SecretSanta> secretSantaList = this.dataReader
+                .parseDataFileWithExclusionFile(Constants.DATA_FILE_PATH,
+                        Constants.EXCLUSION_FILE_PATH);
+        this.manageAttendees(secretSantaList);
+        this.overrideSecretSantaSelections(secretSantaList);
+
         SecretSantaGenerator generator = new SecretSantaGenerator(secretSantaList);
         List<SecretSantaDisplayType> displayList = new ArrayList<SecretSantaDisplayType>();
         
         int numAttempts = 0;
-        while (numAttempts < MAX_GENERATE_ATTEMPTS)
+        while (numAttempts < Constants.MAX_GENERATE_ATTEMPTS)
         {
-            System.out.println("---Generate attempt #: " + (numAttempts + 1) + "-----");
+            logger.info("-----Generate attempt #: [{}] -----", numAttempts + 1);
             try
             {
                 displayList = generator.generateSecretSantas();
@@ -230,20 +208,15 @@ public class SecretSantaGui extends Application
             } catch (GenerateException e)
             {
                 numAttempts++;
-                if (numAttempts == MAX_GENERATE_ATTEMPTS)
+                if (numAttempts == Constants.MAX_GENERATE_ATTEMPTS)
                 {
-                    this.simpleDialogCreator.showSimpleDialog(AlertType.ERROR,
-                            e.getMessage());
-                    break;
+                    throw e;
                 }
             }
         }
         
         for (SecretSantaDisplayType row : displayList)
         {
-            // Test output
-            System.out.println(row.getName() + "/////" + row.getSecretSanta());
-
             secretSantaTableList.add(row);
         }
         
@@ -263,7 +236,7 @@ public class SecretSantaGui extends Application
                                 CSVWriter.NO_QUOTE_CHARACTER);
                         dataRecorder.save(recordList, Constants.DATA_FILE_PATH,
                                 writer);
-                        logger.info("Successfully saved current year data: ");
+                        logger.info("Successfully saved current year data");
                         simpleDialogCreator.showSimpleDialog(AlertType.INFORMATION,
                                 String.format("Successfully saved to [%s] !", Constants.OUTPUT_FILE_PATH));
                         saveButton.setDisable(true);
@@ -282,7 +255,7 @@ public class SecretSantaGui extends Application
             this.saveButton.setDisable(true);
         }
         
-        // TODO add a SUCCESS/FAIL label that displays after writing
+        // TODO add a SUCCESS/FAIL label that displays after writing.
         // a new method that checks if everyone is accounted for (DataValidator)
         
         return secretSantaTableList;
@@ -331,7 +304,7 @@ public class SecretSantaGui extends Application
         }
     }
     
-    private BorderPane addMenuSelectionPane(BorderPane border)
+    private BorderPane addMenuSelectionPane()
     {
         BorderPane buttonPane = new BorderPane();
         

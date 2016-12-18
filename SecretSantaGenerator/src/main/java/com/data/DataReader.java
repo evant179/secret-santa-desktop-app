@@ -85,13 +85,8 @@ public class DataReader
                     }
                 }
 
-                // debug
-                System.out.print(name + "//excludes//");
-                for (String excludedName : excludedNames)
-                {
-                    System.out.print(excludedName + "||");
-                }
-                System.out.println();
+                logger.info("Create new SecretSanta where name[{}] excludes[{}]", name,
+                        excludedNames);
 
                 // Create SecretSanta for each row entry
                 SecretSanta secretSanta = new SecretSanta(name, excludedNames);
