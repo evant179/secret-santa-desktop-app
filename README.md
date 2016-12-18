@@ -2,9 +2,15 @@
 
 # Setting up my Environment #
 
+### Java JDK ###
+
+### Eclipse ###
+
+### JavaFX ###
+
+### Running the program ###
+
 # Secret Santa Generator #
-
-
 
 ### Features to add ###
 
