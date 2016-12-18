@@ -9,6 +9,7 @@
 ### Eclipse ###
 
 * Download and install latest Eclipse IDE. As of 12/18/2016, latest version found [here](https://eclipse.org/downloads/).
+* To keep our formatting consistent so we can easily see diffs, import eclipse_preferences.epf found in the [Downloads](https://bitbucket.org/evant179/secretsantagenerator/downloads).
 
 ### JavaFX ###
 
