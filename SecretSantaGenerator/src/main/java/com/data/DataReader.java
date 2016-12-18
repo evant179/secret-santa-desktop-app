@@ -99,7 +99,7 @@ public class DataReader
 
         return secretSantaList;
     }
-    
+
     /**
      * Parse and merge data file and exclusion file, returning a list of
      * SecretSanta
@@ -112,8 +112,9 @@ public class DataReader
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public List<SecretSanta> parseDataFileWithExclusionFileForExclusionDialog(String dataFilePath,
-            String exclusionFilePath) throws FileNotFoundException, IOException
+    public List<SecretSanta> parseDataFileWithExclusionFileForExclusionDialog(
+            String dataFilePath, String exclusionFilePath)
+            throws FileNotFoundException, IOException
     {
         // parsing into tokens: http://howtodoinjava.com/2013/05/27/parse-csv-files-in-java/
         final List<SecretSanta> secretSantaList = new ArrayList<SecretSanta>();
@@ -147,11 +148,11 @@ public class DataReader
                         name = currentData;
                         break;
                     }
-//                    else
-//                    {
-//                        // Add the remaining data entries as excludedNames
-//                        excludedNames.add(currentData);
-//                    }
+                    //                    else
+                    //                    {
+                    //                        // Add the remaining data entries as excludedNames
+                    //                        excludedNames.add(currentData);
+                    //                    }
                 }
 
                 if (name != null)
@@ -183,8 +184,8 @@ public class DataReader
     }
 
     /**
-     * Parse raw data, INCLUDING empty tokens (""),
-     * returning an object for the MainTableView
+     * Parse raw data, INCLUDING empty tokens (""), returning an object for the
+     * MainTableView
      * 
      * @param dataFilePath
      * @param exclusionFilePath
@@ -192,8 +193,9 @@ public class DataReader
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public List<SecretSantaDisplayType2> parseRawDataFileWithExclusions(String dataFilePath,
-            String exclusionFilePath) throws FileNotFoundException, IOException
+    public List<SecretSantaDisplayType2> parseRawDataFileWithExclusions(
+            String dataFilePath, String exclusionFilePath)
+            throws FileNotFoundException, IOException
     {
         final List<SecretSantaDisplayType2> secretSantaDisplayList = new ArrayList<SecretSantaDisplayType2>();
         ExclusionReader exclusionReader = new ExclusionReader(exclusionFilePath);
@@ -313,7 +315,7 @@ public class DataReader
         }
         return isDuplicate;
     }
-    
+
     /**
      * Return the number of years completed
      * 
