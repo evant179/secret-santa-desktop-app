@@ -1,4 +1,7 @@
-# Secret Santa Generator#
+# Table of Contents #
+1. [Secret Santa Generator](#Secret Santa Generator)
+
+# Secret Santa Generator #
 
 
 
