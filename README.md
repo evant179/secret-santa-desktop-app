@@ -1,36 +1,6 @@
-# Table of Contents #
-1. [Setting up my Environment](#Setting up my Environment)
-2. [Secret Santa Generator](#Secret Santa Generator)
-
+[TOC]
 
 # Setting up my Environment #
-
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
-* test
 
 # Secret Santa Generator #
 
