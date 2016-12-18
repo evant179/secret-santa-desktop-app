@@ -14,8 +14,8 @@ public class SecretSantaDisplayType2
 
     private List<SimpleStringProperty> secretSantaList;
 
-    private ObservableList<String>  exclusionList;
-    
+    private ObservableList<String> exclusionList;
+
     private String selectedName;
 
     public SecretSantaDisplayType2(String name, List<String> secretSantaList,
@@ -46,7 +46,7 @@ public class SecretSantaDisplayType2
     {
         this.secretSantaList = secretSantaList;
     }
-    
+
     public String getSelectedName()
     {
         return this.selectedName;
@@ -56,7 +56,7 @@ public class SecretSantaDisplayType2
     {
         this.selectedName = selectedName;
     }
-    
+
     public ObservableList<String> getExclusionList()
     {
         return this.exclusionList;

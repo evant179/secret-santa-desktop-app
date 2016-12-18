@@ -8,7 +8,8 @@ import javafx.scene.control.Alert.AlertType;
 
 public class SimpleDialogCreator
 {
-    private static final Logger logger = LoggerFactory.getLogger(SimpleDialogCreator.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(SimpleDialogCreator.class);
 
     /**
      * Display simple, modal dialog with a message
@@ -18,8 +19,7 @@ public class SimpleDialogCreator
      */
     public void showSimpleDialog(AlertType alertType, String message)
     {
-        logger.info("Display alert dialog of type[{}], message[{}]",
-                alertType, message);
+        logger.info("Display alert dialog of type[{}], message[{}]", alertType, message);
         Alert alert = new Alert(alertType);
         alert.setContentText(message);
         alert.showAndWait();

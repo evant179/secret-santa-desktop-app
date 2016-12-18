@@ -56,23 +56,24 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
 
         this.constructTable(secretSantaDisplayList);
     }
-    
+
     /**
      * Refresh entire table's data.
      * 
      * Should be called after ANY modification to data.csv and exclusions.csv
      * 
      * @param secretSantaDisplayList
-     * @throws IOException 
-     * @throws FileNotFoundException 
+     * @throws IOException
+     * @throws FileNotFoundException
      */
-    public void refreshTableData(List<SecretSantaDisplayType2> secretSantaDisplayList) throws FileNotFoundException, IOException
+    public void refreshTableData(List<SecretSantaDisplayType2> secretSantaDisplayList)
+            throws FileNotFoundException, IOException
     {
         logger.info("Refresh table");
         this.getColumns().removeAll(this.getColumns());
         this.constructTable(secretSantaDisplayList);
     }
-    
+
     public void toggleEditMode()
     {
         logger.info("toggleEditMode to [{}]", !this.isEditable());
@@ -276,7 +277,7 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
     private class ComboBoxCell extends TableCell<SecretSantaDisplayType2, String>
     {
         private ComboBox<String> comboBox;
-        
+
         public ComboBoxCell()
         {
             comboBox = new ComboBox<>();
@@ -327,8 +328,8 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
                         commitEdit(selectedName);
                     }
                 });
-                
-                cancelCombobox = () -> 
+
+                cancelCombobox = () ->
                 {
                     logger.info("combo call cancelEdit from runnable");
                     cancelEdit();

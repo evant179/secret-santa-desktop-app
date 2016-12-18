@@ -28,13 +28,13 @@ public class DataRecorder
     private CSVWriter csvWriter = null;
     private FileReader fileReader = null;
     private CSVReader csvReader = null;
-    
+
     public DataRecorder(String dataFilePath, String exclusionFilePath)
     {
         this.dataFilePath = dataFilePath;
         this.exclusionFilePath = exclusionFilePath;
     }
-    
+
     public void saveNewcomerToCurrentData(String newcomerName) throws Exception
     {
         logger.info(
@@ -49,7 +49,7 @@ public class DataRecorder
             logger.error(message);
             throw new Exception(message);
         }
-        
+
         // get number of years first so the CSVReader can safely read and close
         // before a write is attempted below
         int numberYearsCompleted = this.dataReader
@@ -67,7 +67,8 @@ public class DataRecorder
         this.fileWriter = new FileWriter(this.dataFilePath, true);
         this.csvWriter = new CSVWriter(this.fileWriter, ',',
                 CSVWriter.NO_QUOTE_CHARACTER);
-        List<String> newcomerDataRow = this.createNewcomerDataRow(newcomerName, numberYearsCompleted);
+        List<String> newcomerDataRow = this.createNewcomerDataRow(newcomerName,
+                numberYearsCompleted);
         this.csvWriter.writeNext(newcomerDataRow.toArray(new String[0]));
         this.csvWriter.close();
 
@@ -163,7 +164,7 @@ public class DataRecorder
                 "Successfully updated EXCLUSION list for[{}] to exclusionFilePath[{}]",
                 secretSanta.getName(), this.exclusionFilePath);
     }
-    
+
     /**
      * Append new secret santa results onto the current data
      * 
@@ -243,93 +244,93 @@ public class DataRecorder
 
         writer.close();
     }
-    
-//    /**
-//     * TODO change save2 to work for SecretSantaDisplayType2 with unit tests. switch over when done
-//     * Append new secret santa results onto the current data
-//     * 
-//     * @param recordList
-//     *            List containing secret santa results to be appended
-//     * @param dataFilePath
-//     * @param outputFilePath
-//     * @throws IOException
-//     */
-//    public void save2(List<SecretSantaDisplayType2> recordList, String dataFilePath,
-//            CSVWriter writer) throws IOException
-//    {
-//        // first read data.csv
-//        // then append recordList at end
-//
-//        @SuppressWarnings("resource")
-//        CSVReader reader = new CSVReader(new FileReader(dataFilePath));
-//
-//        int rowSize = 0;
-//
-//        String[] entries = null;
-//        while ((entries = reader.readNext()) != null)
-//        {
-//            List<String> list = Arrays.asList(entries); // Arrays.asList(entries) is unnmodifiable
-//            list = new ArrayList<String>(list); // Convert to ArrayList to be modifiable
-//
-//            // Check if header line
-//            if (list.get(0).charAt(0) == '#')
-//            {
-//                // This should only occur for the first row
-//                String lastRecordedYearString = list.get(list.size() - 1);
-//                int lastRecordedYear = Integer.parseInt(lastRecordedYearString);
-//                lastRecordedYear++;
-//                list.add(Integer.toString(lastRecordedYear));
-//                rowSize = list.size();
-//            }
-//            else
-//            {
-//                boolean isMatchFound = false;
-//                for (SecretSantaDisplayType record : recordList)
-//                {
-//                    if (list.get(0).equals(record.getName()))
-//                    {
-//                        list.add(record.getSecretSanta());
-//                        recordList.remove(record);
-//                        isMatchFound = true;
-//                        break;
-//                    }
-//                }
-//
-//                if (!isMatchFound)
-//                {
-//                    // If no match found, then add empty string at end of current row
-//                    // i.e. xxx was at previous secret santa but didn't go current year
-//                    list.add("");
-//                }
-//            }
-//
-//            checkRowSize(rowSize, list);
-//
-//            writer.writeNext(list.toArray(new String[0]));
-//        }
-//
-//        // Save newcomers
-//        for (SecretSantaDisplayType newComer : recordList)
-//        {
-//            List<String> newComerRow = new ArrayList<String>();
-//            for (int i = 0; i < rowSize; i++)
-//            {
-//                newComerRow.add("");
-//            }
-//            newComerRow.set(0, newComer.getName()); // set name as first spot in row
-//            newComerRow.set(rowSize - 1, newComer.getSecretSanta()); // set secret santa as last spot in row
-//            checkRowSize(rowSize, newComerRow);
-//            writer.writeNext(newComerRow.toArray(new String[0]));
-//        }
-//
-//        writer.close();
-//    }
+
+    //    /**
+    //     * TODO change save2 to work for SecretSantaDisplayType2 with unit tests. switch over when done
+    //     * Append new secret santa results onto the current data
+    //     * 
+    //     * @param recordList
+    //     *            List containing secret santa results to be appended
+    //     * @param dataFilePath
+    //     * @param outputFilePath
+    //     * @throws IOException
+    //     */
+    //    public void save2(List<SecretSantaDisplayType2> recordList, String dataFilePath,
+    //            CSVWriter writer) throws IOException
+    //    {
+    //        // first read data.csv
+    //        // then append recordList at end
+    //
+    //        @SuppressWarnings("resource")
+    //        CSVReader reader = new CSVReader(new FileReader(dataFilePath));
+    //
+    //        int rowSize = 0;
+    //
+    //        String[] entries = null;
+    //        while ((entries = reader.readNext()) != null)
+    //        {
+    //            List<String> list = Arrays.asList(entries); // Arrays.asList(entries) is unnmodifiable
+    //            list = new ArrayList<String>(list); // Convert to ArrayList to be modifiable
+    //
+    //            // Check if header line
+    //            if (list.get(0).charAt(0) == '#')
+    //            {
+    //                // This should only occur for the first row
+    //                String lastRecordedYearString = list.get(list.size() - 1);
+    //                int lastRecordedYear = Integer.parseInt(lastRecordedYearString);
+    //                lastRecordedYear++;
+    //                list.add(Integer.toString(lastRecordedYear));
+    //                rowSize = list.size();
+    //            }
+    //            else
+    //            {
+    //                boolean isMatchFound = false;
+    //                for (SecretSantaDisplayType record : recordList)
+    //                {
+    //                    if (list.get(0).equals(record.getName()))
+    //                    {
+    //                        list.add(record.getSecretSanta());
+    //                        recordList.remove(record);
+    //                        isMatchFound = true;
+    //                        break;
+    //                    }
+    //                }
+    //
+    //                if (!isMatchFound)
+    //                {
+    //                    // If no match found, then add empty string at end of current row
+    //                    // i.e. xxx was at previous secret santa but didn't go current year
+    //                    list.add("");
+    //                }
+    //            }
+    //
+    //            checkRowSize(rowSize, list);
+    //
+    //            writer.writeNext(list.toArray(new String[0]));
+    //        }
+    //
+    //        // Save newcomers
+    //        for (SecretSantaDisplayType newComer : recordList)
+    //        {
+    //            List<String> newComerRow = new ArrayList<String>();
+    //            for (int i = 0; i < rowSize; i++)
+    //            {
+    //                newComerRow.add("");
+    //            }
+    //            newComerRow.set(0, newComer.getName()); // set name as first spot in row
+    //            newComerRow.set(rowSize - 1, newComer.getSecretSanta()); // set secret santa as last spot in row
+    //            checkRowSize(rowSize, newComerRow);
+    //            writer.writeNext(newComerRow.toArray(new String[0]));
+    //        }
+    //
+    //        writer.close();
+    //    }
 
     public String getDataFilePath()
     {
         return this.dataFilePath;
     }
-    
+
     public String getExclusionFilePath()
     {
         return this.exclusionFilePath;
