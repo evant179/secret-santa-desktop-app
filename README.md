@@ -4,11 +4,21 @@
 
 ### Java JDK ###
 
+* Download and install latest Java SE Development Kit. As of 12/18/2016, latest version found [here](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
+
 ### Eclipse ###
+
+* Download and install latest Eclipse IDE. As of 12/18/2016, latest version found [here](https://eclipse.org/downloads/).
 
 ### JavaFX ###
 
+* Set up JavaFX for Eclipse. Instructions found [here](https://www.eclipse.org/efxclipse/install.html).
+
 ### Running the program ###
+
+* Within Eclipse, here's a screenshot of the Run Configuration. Run it as a Java Application.
+
+![eclipse_run_config.png](https://bitbucket.org/repo/6bMx4M/images/935062552-eclipse_run_config.png)
 
 # Secret Santa Generator #
 
