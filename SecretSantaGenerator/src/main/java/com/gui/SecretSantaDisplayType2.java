@@ -14,9 +14,7 @@ public class SecretSantaDisplayType2
 
     private List<SimpleStringProperty> secretSantaList;
 
-//    private List<SimpleStringProperty> exclusionList;
     private ObservableList<String>  exclusionList;
-    private ObservableList<String>  availableSelectionList;
     
     private String selectedName;
 
@@ -27,9 +25,6 @@ public class SecretSantaDisplayType2
         this.secretSantaList = Utility.convertList(secretSantaList,
                 s -> new SimpleStringProperty(s));
         this.exclusionList = FXCollections.observableList(exclusionList);
-
-        // TODO exclusionList doesn't need to be stored.
-        // use exclusionList and secretSantaList to figure out availableSelectionList
     }
 
     public String getName()
@@ -71,14 +66,4 @@ public class SecretSantaDisplayType2
     {
         this.exclusionList = exclusionList;
     }
-
-//    public List<SimpleStringProperty> getExclusionList()
-//    {
-//        return this.exclusionList;
-//    }
-//
-//    public void setExclusionList(List<SimpleStringProperty> exclusionList)
-//    {
-//        this.exclusionList = exclusionList;
-//    }
 }

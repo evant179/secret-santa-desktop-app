@@ -41,7 +41,6 @@ public class SecretSantaGui extends Application
 {
     private static final Logger logger = LoggerFactory.getLogger(SecretSantaGui.class);
     
-    private Stage primaryStage;
     private DataRecorder dataRecorder;
     private DataReader dataReader;
 
@@ -63,9 +62,8 @@ public class SecretSantaGui extends Application
     }
 
     @Override
-    public void start(Stage stage) throws Exception
+    public void start(Stage mainStage) throws Exception
     {
-        this.primaryStage = stage;
         this.dataRecorder = new DataRecorder(Constants.DATA_FILE_PATH,
                 Constants.EXCLUSION_FILE_PATH);
         this.dataReader = new DataReader();
@@ -85,7 +83,7 @@ public class SecretSantaGui extends Application
             return;
         }
 
-        this.primaryStage.setTitle("Secret Santa Generator");
+        mainStage.setTitle("Secret Santa Generator");
         BorderPane border = new BorderPane();
 
         border.setRight(this.addMenuSelectionPane());
@@ -95,8 +93,8 @@ public class SecretSantaGui extends Application
         
         border.setBottom(this.mainTableView);
         
-        this.primaryStage.setScene(new Scene(border, 1200, 750));
-        this.primaryStage.show();
+        mainStage.setScene(new Scene(border, 1200, 750));
+        mainStage.show();
     }
     
     private void initializeCheckBoxesPane(List<SecretSantaDisplayType2> secretSantaDisplayList)
