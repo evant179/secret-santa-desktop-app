@@ -12,6 +12,7 @@ public class SecretSantaDisplayType2
 {
     private final SimpleStringProperty name;
 
+    //pool of chooseable names
     private List<SimpleStringProperty> secretSantaList;
 
     private ObservableList<String> exclusionList;

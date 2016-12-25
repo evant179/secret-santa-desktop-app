@@ -149,6 +149,10 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
                 {
                     row.getSecretSantaList().get(this.currentYearIndex)
                             .setValue(oldType.getSecretSanta());
+                    //TODO: validate chosen person is actually in their ss list and not in exclusions.
+                    //This pulls the person straight from ss list though so it should 
+                    //always be ok unless the same person is in both exclusion and ss list
+                   
                     logger.info("after update result: [{}] : [{}]", row.getName(), row
                             .getSecretSantaList().get(this.currentYearIndex).getValue());
                     break;
@@ -161,7 +165,9 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
         this.getColumns().get(getColumns().size() - 1);
         lastColumn.setCellValueFactory(cellData -> cellData.getValue()
                 .getSecretSantaList().get(this.currentYearIndex));
-
+           
+        
+        
         this.setEditable(false);
         this.refresh();
     }

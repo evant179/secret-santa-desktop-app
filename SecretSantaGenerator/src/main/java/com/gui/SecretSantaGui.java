@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.data.DataReader;
 import com.data.DataRecorder;
+import com.data.DataValidator;
 import com.generator.GenerateException;
 import com.generator.SecretSanta;
 import com.generator.SecretSantaGenerator;
@@ -43,7 +44,7 @@ public class SecretSantaGui extends Application
 
     private DataRecorder dataRecorder;
     private DataReader dataReader;
-
+    int z = 0;
     private final FlowPane checkBoxesPane = new FlowPane();
     private final List<CheckBox> checkBoxList = new ArrayList<CheckBox>();
     private final Button generateButton = new Button("Generate!");
@@ -68,7 +69,12 @@ public class SecretSantaGui extends Application
         this.dataRecorder = new DataRecorder(Constants.DATA_FILE_PATH,
                 Constants.EXCLUSION_FILE_PATH);
         this.dataReader = new DataReader();
-
+        
+        //Makes sure that all names in eclusion file are in the data
+        //file. If not, program exits with error code.
+        if (!DataValidator.containsAllNames())
+            System.exit(1);
+        
         final List<SecretSantaDisplayType2> secretSantaDisplayList;
         try
         {
@@ -122,6 +128,8 @@ public class SecretSantaGui extends Application
             checkbox.setMaxWidth(100);
             checkbox.setPrefWidth(100);
             checkbox.setSelected(true);
+            
+            //listens for checkbox changes
             checkbox.selectedProperty().addListener(new ChangeListener<Boolean>()
             {
                 public void changed(ObservableValue<? extends Boolean> ov,
@@ -145,6 +153,7 @@ public class SecretSantaGui extends Application
             });
             this.checkBoxList.add(checkbox);
         }
+        
     }
 
     private void setDisableCheckBoxes(boolean isDisable)
@@ -166,6 +175,7 @@ public class SecretSantaGui extends Application
         {
             this.mainTableView
                     .updateSecretSantasWithResults(this.generateObservableList());
+            
         }
         catch (Exception e)
         {
@@ -261,9 +271,15 @@ public class SecretSantaGui extends Application
         }
 
         // TODO add a SUCCESS/FAIL label that displays after writing.
-        // a new method that checks if everyone is accounted for (DataValidator)
-
-        return secretSantaTableList;
+       
+        //Validates that all secret santas have their own secret santa. If someone
+        //is missing then it generates a new list
+        logger.info("All accounted for: [{}]",DataValidator.allAccountedFor(secretSantaTableList));
+        if (!DataValidator.allAccountedFor(secretSantaTableList))
+           return generateObservableList();
+        else
+            return secretSantaTableList;
+        
     }
 
     private void manageAttendees(List<SecretSanta> secretSantaList)
@@ -478,6 +494,7 @@ public class SecretSantaGui extends Application
             this.loadCheckBoxList(secretSantaDisplayList);
             this.checkBoxesPane.getChildren().clear();
             this.checkBoxesPane.getChildren().addAll(this.checkBoxList);
+            
 
             // update table
             this.mainTableView.refreshTableData(secretSantaDisplayList);
