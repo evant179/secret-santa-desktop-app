@@ -9,7 +9,9 @@
 ### Eclipse ###
 
 * Download and install latest Eclipse IDE. As of 12/18/2016, latest version found [here](https://eclipse.org/downloads/).
-* To keep our formatting consistent so we can easily see diffs, import eclipse_preferences.epf found in the [Downloads](https://bitbucket.org/evant179/secretsantagenerator/downloads).
+* To keep our formatting consistent so we can easily see diffs, import formatter_profile.xml found in the [Downloads](https://bitbucket.org/evant179/secretsantagenerator/downloads). Select ET_Profile as the profile. Here's where you can import the settings:
+
+![code_formatter.png](https://bitbucket.org/repo/6bMx4M/images/326307154-code_formatter.png)
 
 ### JavaFX ###
 
