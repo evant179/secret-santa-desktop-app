@@ -1,8 +1,10 @@
 package com.data;
 
 import java.io.FileReader;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -10,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javafx.collections.ObservableList;
+
+import com.generator.SecretSanta;
 import com.gui.Constants;
 import com.gui.SecretSantaDisplayType;
 import com.gui.SecretSantaGui;
@@ -35,19 +39,25 @@ public class DataValidator implements DataValidatorInterface
      * @return boolean
      */
     @Override
-    public boolean verifyResultsAccountedFor(Map<String, String> resultMap)
+    public <T> boolean areCollectionsValidAndEqual(Collection<T> collectionA,
+            Collection<T> collectionB)
     {
-        Set<String> secretSantaList = new TreeSet<>();
-        Set<String> chosenOnes = new TreeSet<>();
+        Objects.requireNonNull(collectionA, "collectionA is null");
+        Objects.requireNonNull(collectionB, "collectionB is null");
 
-        resultMap.forEach((key, value) ->
+        Set<T> setA = new TreeSet<>();
+        Set<T> setB = new TreeSet<>();
+
+        collectionA.forEach(a -> setA.add(a));
+        collectionB.forEach(b -> setB.add(b));
+
+        if (collectionA.size() != setA.size() || collectionB.size() != setB.size())
         {
-            logger.info("Verifying for key[{}], value[{}]", key, value);
-            secretSantaList.add(key);
-            chosenOnes.add(value);
-        });
+            logger.warn("Duplicate data found");
+            return false;
+        }
 
-        return secretSantaList.equals(chosenOnes);
+        return setA.equals(setB);
     }
 
     /**
@@ -56,8 +66,7 @@ public class DataValidator implements DataValidatorInterface
      * @return boolean. Also logs any missing names
      */
     @Override
-    public boolean verifyUniqueNamesFromDataFile(String dataFilePath,
-            String exclusionFilePath)
+    public boolean isDataSynchronous(String dataFilePath, String exclusionFilePath)
     {
         try
         {
@@ -113,6 +122,17 @@ public class DataValidator implements DataValidatorInterface
             logger.error("Cannot read file: ", e);
             return false;
         }
+    }
+
+    @Override
+    public boolean isValidGeneration(List<SecretSanta> secretSantas,
+            Map<String, String> attendeeToResultMap)
+    {
+        // TODO implement
+
+        // for unit testing, you can optionally copy what DataReaderTest did
+        // to quickly create a list of SecretSantas (lines 31-47)
+        return false;
     }
 
 }
