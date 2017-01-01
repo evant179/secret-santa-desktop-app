@@ -246,7 +246,7 @@ public class SecretSantaGui extends Application
                                         Constants.OUTPUT_FILE_PATH));
                         saveButton.setDisable(true);
                     }
-                    catch (IOException e)
+                    catch (Exception e)
                     {
                         logger.error("Error saving current year data: ", e);
                         simpleDialogCreator.showSimpleDialog(AlertType.ERROR,

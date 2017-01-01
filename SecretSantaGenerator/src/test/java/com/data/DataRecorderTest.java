@@ -38,7 +38,7 @@ public class DataRecorderTest
     private static final Logger logger = LoggerFactory.getLogger(DataRecorderTest.class);
 
     @Test
-    public void testSave1() throws IOException
+    public void testSave1() throws Exception
     {
         File dataFile = new File(getClass().getResource(TEST_DATA2_FILE_PATH).getFile());
         DataRecorder dataRecorder = new DataRecorder(dataFile.getPath(), TEST_EXCLUSIONS1_FILE_PATH);
@@ -110,7 +110,7 @@ public class DataRecorderTest
     }
 
     @Test
-    public void testSave2() throws IOException
+    public void testSave2() throws Exception
     {
         File dataFile = new File(getClass().getResource(TEST_DATA2_FILE_PATH).getFile());
         DataRecorder dataRecorder = new DataRecorder(dataFile.getPath(), TEST_EXCLUSIONS1_FILE_PATH);
