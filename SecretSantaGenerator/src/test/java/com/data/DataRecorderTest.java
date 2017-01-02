@@ -3,9 +3,12 @@ package com.data;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gui.Constants;
 import com.gui.SecretSantaDisplayType;
+import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -68,14 +72,15 @@ public class DataRecorderTest
     public void testSave1() throws Exception
     {
         File dataFile = new File(getClass().getResource(TEST_DATA2_FILE_PATH).getFile());
-        List<SecretSantaDisplayType> testList = createTestSecretSantaDisplayList();
+        CSVReader dataCsvReader = new CSVReader(new FileReader(dataFile.getPath()));
+        Map<String, String> testMap = createTestAttendeeToResultMap();
 
         CSVWriter mockWriter = mock(CSVWriter.class);
 
         ArgumentCaptor<String[]> writeNextCaptor = ArgumentCaptor
                 .forClass(String[].class);
 
-        dataRecorder.save(testList, dataFile.getPath(), mockWriter);
+        this.dataRecorder.saveGenerationResults(testMap, dataCsvReader, mockWriter);
 
         verify(mockWriter, times(1)).close();
 
@@ -139,14 +144,15 @@ public class DataRecorderTest
     public void testSave2() throws Exception
     {
         File dataFile = new File(getClass().getResource(TEST_DATA2_FILE_PATH).getFile());
-        List<SecretSantaDisplayType> testList = createTestSecretSantaDisplayListWithNewcomers();
+        CSVReader dataCsvReader = new CSVReader(new FileReader(dataFile.getPath()));
+        Map<String, String> testMap = createTestAttendeeToResultMapWithNewcomers();
 
         CSVWriter mockWriter = mock(CSVWriter.class);
 
         ArgumentCaptor<String[]> writeNextCaptor = ArgumentCaptor
                 .forClass(String[].class);
 
-        dataRecorder.save(testList, dataFile.getPath(), mockWriter);
+        this.dataRecorder.saveGenerationResults(testMap, dataCsvReader, mockWriter);
 
         verify(mockWriter, times(1)).close();
 
@@ -254,5 +260,26 @@ public class DataRecorderTest
         list.add(new SecretSantaDisplayType("newcomer2", "newcomer1"));
 
         return list;
+    }
+    
+    private Map<String, String> createTestAttendeeToResultMap()
+    {
+        Map<String, String> attendeeToResultMap = new HashMap<>();
+        attendeeToResultMap.put("testName1", "testName8");
+        attendeeToResultMap.put("testName7", "testName9");
+        attendeeToResultMap.put("testName9", "testName10");
+
+        return attendeeToResultMap;
+    }
+
+    private Map<String, String> createTestAttendeeToResultMapWithNewcomers()
+    {
+        Map<String, String> attendeeToResultMap = new HashMap<>();
+        attendeeToResultMap.put("testName1", "testName8");
+        attendeeToResultMap.put("testName10", "testName9");
+        attendeeToResultMap.put("newcomer1", "testName1");
+        attendeeToResultMap.put("newcomer2", "newcomer1");
+
+        return attendeeToResultMap;
     }
 }

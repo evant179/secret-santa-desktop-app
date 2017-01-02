@@ -251,7 +251,7 @@ public class SecretSantaGui extends Application
                         CSVWriter writer = new CSVWriter(
                                 new FileWriter(Constants.OUTPUT_FILE_PATH), ',',
                                 CSVWriter.NO_QUOTE_CHARACTER);
-                        dataRecorder.save(recordList, Constants.DATA_FILE_PATH, writer);
+                        dataRecorder.saveGenerationResults(recordList, Constants.DATA_FILE_PATH, writer);
                         logger.info("Successfully saved current year data");
                         simpleDialogCreator.showSimpleDialog(AlertType.INFORMATION,
                                 String.format("Successfully saved to [%s] !",

@@ -80,6 +80,8 @@ public class SecretSantaGenerator
                 String assignedName = this.assignSecretSanta(secretSanta);
 
                 // Assign name to secret santa map
+                logger.info("///// attendee[{}] ///// result[{}] /////",
+                        secretSanta.getName(), assignedName);
                 secretSantaMap.put(secretSanta.getName(), assignedName);
 
                 // Mark the map of taken names as true (taken)
@@ -92,7 +94,7 @@ public class SecretSantaGenerator
         {
             String name = entry.getKey();
             String secretSanta = entry.getValue();
-            logger.info("///// [{}] ///// [{}] /////", name, secretSanta);
+            //            logger.info("///// [{}] ///// [{}] /////", name, secretSanta);
             displayList.add(
                     new SecretSantaDisplayType(name.toString(), secretSanta.toString()));
         }

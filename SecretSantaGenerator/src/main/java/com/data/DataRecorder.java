@@ -155,86 +155,6 @@ public class DataRecorder
     }
 
     /**
-     * Append new secret santa results onto the current data
-     * 
-     * @param recordList
-     *            List containing secret santa results to be appended
-     * @param dataFilePath
-     * @param outputFilePath
-     * @throws Exception
-     */
-    public void save(List<SecretSantaDisplayType> recordList, String dataFilePath,
-            CSVWriter writer) throws Exception
-    {
-        // first read data.csv
-        // then append recordList at end
-
-        @SuppressWarnings("resource")
-        CSVReader reader = new CSVReader(new FileReader(dataFilePath));
-
-        int rowSize = 0;
-
-        String[] entries = null;
-        while ((entries = reader.readNext()) != null)
-        {
-            List<String> list = Arrays.asList(entries); // Arrays.asList(entries) is unnmodifiable
-            list = new ArrayList<String>(list); // Convert to ArrayList to be modifiable
-
-            // Check if header line
-            if (list.get(0).charAt(0) == '#')
-            {
-                // This should only occur for the first row
-                String lastRecordedYearString = list.get(list.size() - 1);
-                int lastRecordedYear = Integer.parseInt(lastRecordedYearString);
-                lastRecordedYear++;
-                list.add(Integer.toString(lastRecordedYear));
-                rowSize = list.size();
-            }
-            else
-            {
-                boolean isMatchFound = false;
-                for (SecretSantaDisplayType record : recordList)
-                {
-                    if (list.get(0).equals(record.getName()))
-                    {
-                        list.add(record.getSecretSanta());
-                        recordList.remove(record);
-                        isMatchFound = true;
-                        break;
-                    }
-                }
-
-                if (!isMatchFound)
-                {
-                    // If no match found, then add empty string at end of current row
-                    // i.e. xxx was at previous secret santa but didn't go current year
-                    list.add("");
-                }
-            }
-
-            checkRowSize(rowSize, list);
-
-            writer.writeNext(list.toArray(new String[0]));
-        }
-
-        // Save newcomers
-        for (SecretSantaDisplayType newComer : recordList)
-        {
-            List<String> newComerRow = new ArrayList<String>();
-            for (int i = 0; i < rowSize; i++)
-            {
-                newComerRow.add("");
-            }
-            newComerRow.set(0, newComer.getName()); // set name as first spot in row
-            newComerRow.set(rowSize - 1, newComer.getSecretSanta()); // set secret santa as last spot in row
-            checkRowSize(rowSize, newComerRow);
-            writer.writeNext(newComerRow.toArray(new String[0]));
-        }
-
-        writer.close();
-    }
-
-    /**
      * TODO change save2 to work for SecretSantaDisplayType2 with unit tests.
      * switch over when done Append new secret santa results onto the current
      * data
@@ -245,19 +165,16 @@ public class DataRecorder
      * @param outputFilePath
      * @throws Exception
      */
-    public void save2(final Map<String, String> resultMap, String dataFilePath,
-            CSVWriter writer) throws Exception
+    public void saveGenerationResults(final Map<String, String> resultMap, CSVReader dataCsvReader,
+            CSVWriter dataCsvWriter) throws Exception
     {
         // first read data.csv
         // then append recordList at end
 
-        @SuppressWarnings("resource")
-        CSVReader reader = new CSVReader(new FileReader(dataFilePath));
-
         int rowSize = 0;
 
         String[] entries = null;
-        while ((entries = reader.readNext()) != null)
+        while ((entries = dataCsvReader.readNext()) != null)
         {
             List<String> list = Arrays.asList(entries); // Arrays.asList(entries) is unnmodifiable
             list = new ArrayList<String>(list); // Convert to ArrayList to be modifiable
@@ -289,7 +206,7 @@ public class DataRecorder
             }
 
             checkRowSize(rowSize, list);
-            writer.writeNext(list.toArray(new String[0]));
+            dataCsvWriter.writeNext(list.toArray(new String[0]));
         }
 
         // Save newcomers
@@ -305,10 +222,10 @@ public class DataRecorder
             newComerRow.set(0, newComerName); // set name as first spot in row
             newComerRow.set(rowSize - 1, newComerResult); // set secret santa as last spot in row
             checkRowSize(rowSize, newComerRow);
-            writer.writeNext(newComerRow.toArray(new String[0]));
+            dataCsvWriter.writeNext(newComerRow.toArray(new String[0]));
         }
 
-        writer.close();
+        dataCsvWriter.close();
     }
 
     private List<String> createNewcomerDataRow(String newcomerName, int numberEmptyQuotes)

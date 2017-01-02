@@ -59,10 +59,9 @@ public class DataReaderTest
         CSVReader exclusionCsvReader = new CSVReader(
                 new FileReader(exclusionsFile.getPath()));
 
-        DataReader dataReader = new DataReader();
         List<SecretSanta> secretSantaList = new ArrayList<SecretSanta>();
 
-        secretSantaList = dataReader.parseDataFileWithExclusionFile(dataCsvReader,
+        secretSantaList = this.dataReader.parseDataFileWithExclusionFile(dataCsvReader,
                 exclusionCsvReader, this.exclusionReader);
 
         final String TESTNAME1 = "TESTNAME1";
@@ -112,5 +111,4 @@ public class DataReaderTest
 
         logger.info("========== PASS testDataReader ==========");
     }
-
 }
