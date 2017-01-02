@@ -5,7 +5,11 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.data.DataReader;
 import com.data.DataRecorder;
+import com.data.ExclusionReader;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
 import com.utility.Utility;
 
 import javafx.scene.control.Alert.AlertType;
@@ -15,10 +19,13 @@ public class AddNewcomerDialog extends TextInputDialog
 {
     private static final Logger logger = LoggerFactory.getLogger(AddNewcomerDialog.class);
 
+    private final DataReader dataReader;
+    private final ExclusionReader exclusionReader;
     private final DataRecorder dataRecorder;
     private final SimpleDialogCreator simpleDialogCreator = new SimpleDialogCreator();
 
-    public AddNewcomerDialog(DataRecorder dataRecorder)
+    public AddNewcomerDialog(DataReader dataReader, ExclusionReader exclusionReader,
+            DataRecorder dataRecorder)
     {
         super();
 
@@ -26,6 +33,8 @@ public class AddNewcomerDialog extends TextInputDialog
         this.setHeaderText(Constants.ADD_NEWCOMER_DIALOG_HEADER);
         this.setContentText(Constants.ADD_NEWCOMER_DIALOG_CONTENT);
 
+        this.dataReader = dataReader;
+        this.exclusionReader = exclusionReader;
         this.dataRecorder = dataRecorder;
     }
 
@@ -55,7 +64,16 @@ public class AddNewcomerDialog extends TextInputDialog
         boolean isSuccess = false;
         try
         {
-            this.dataRecorder.saveNewcomerToCurrentData(newcomerName);
+            CSVWriter dataCsvWriter = Utility.createCsvWriter(Constants.DATA_FILE_PATH);
+            CSVReader dataCsvReader = Utility.createCsvReader(Constants.DATA_FILE_PATH);
+            CSVWriter exclusionCsvWriter = Utility
+                    .createCsvWriter(Constants.EXCLUSION_FILE_PATH);
+            CSVReader exclusionCsvReader = Utility
+                    .createCsvReader(Constants.EXCLUSION_FILE_PATH);
+
+            this.dataRecorder.saveNewcomerToCurrentData(dataCsvWriter, dataCsvReader,
+                    this.dataReader, exclusionCsvWriter, exclusionCsvReader,
+                    this.exclusionReader, newcomerName);
             this.simpleDialogCreator.showSimpleDialog(AlertType.INFORMATION,
                     String.format(Constants.ADD_NEWCOMER_DIALOG_SUCCESS, newcomerName));
             isSuccess = true;
@@ -65,8 +83,8 @@ public class AddNewcomerDialog extends TextInputDialog
             logger.error("Error adding newcomer: ", e);
             this.simpleDialogCreator.showSimpleDialog(AlertType.ERROR,
                     String.format(Constants.ADD_NEWCOMER_DIALOG_ERROR, newcomerName,
-                            this.dataRecorder.getDataFilePath(),
-                            this.dataRecorder.getExclusionFilePath(), e.getMessage()));
+                            Constants.DATA_FILE_PATH, Constants.EXCLUSION_FILE_PATH,
+                            e.getMessage()));
         }
         return isSuccess;
     }

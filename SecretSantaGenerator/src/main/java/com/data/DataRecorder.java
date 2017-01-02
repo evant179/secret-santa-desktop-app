@@ -1,6 +1,5 @@
 package com.data;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import com.generator.SecretSanta;
 import com.gui.SecretSantaDisplayType;
-import com.gui.SecretSantaDisplayType2;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
@@ -22,28 +20,31 @@ public class DataRecorder
 {
     private static final Logger logger = LoggerFactory.getLogger(DataRecorder.class);
 
-    private final String dataFilePath;
-    private final String exclusionFilePath;
-    private DataReader dataReader = new DataReader();
-    private FileWriter fileWriter = null;
-    private CSVWriter csvWriter = null;
-    private FileReader fileReader = null;
-    private CSVReader csvReader = null;
+    //    private final String dataFilePath;
+    //    private final String exclusionFilePath;
+    //    private DataReader dataReader = new DataReader();
+    //    private FileWriter fileWriter = null;
+    //    private CSVWriter csvWriter = null;
+    //    private FileReader fileReader = null;
+    //    private CSVReader csvReader = null;
+    //
+    //    public DataRecorder(String dataFilePath, String exclusionFilePath)
+    //    {
+    //        this.dataFilePath = dataFilePath;
+    //        this.exclusionFilePath = exclusionFilePath;
+    //    }
 
-    public DataRecorder(String dataFilePath, String exclusionFilePath)
+    public void saveNewcomerToCurrentData(CSVWriter dataCsvWriter,
+            CSVReader dataCsvReader, DataReader dataReader, CSVWriter exclusionCsvWriter,
+            CSVReader exclusionCsvReader, ExclusionReader exclusionReader,
+            String newcomerName) throws Exception
     {
-        this.dataFilePath = dataFilePath;
-        this.exclusionFilePath = exclusionFilePath;
-    }
-
-    public void saveNewcomerToCurrentData(String newcomerName) throws Exception
-    {
-        logger.info(
-                "Start saving newcomer[{}] to dataFilePath[{}], exclusionFilePath[{}]",
-                newcomerName, this.dataFilePath, this.exclusionFilePath);
+        logger.info("Start saving newcomer[{}] to data file, exclusion file",
+                newcomerName);
 
         // check if name already exists in the data file
-        if (this.dataReader.isDuplicateName(this.dataFilePath, newcomerName))
+        if (dataReader.isDuplicateName(dataCsvReader, exclusionCsvReader, exclusionReader,
+                newcomerName))
         {
             final String message = String.format("[%s] is a duplicate name.",
                     newcomerName);
@@ -53,8 +54,7 @@ public class DataRecorder
 
         // get number of years first so the CSVReader can safely read and close
         // before a write is attempted below
-        int numberYearsCompleted = this.dataReader
-                .getNumberYearsCompleted(this.dataFilePath);
+        int numberYearsCompleted = dataReader.getNumberYearsCompleted(dataCsvReader);
         if (numberYearsCompleted <= 0)
         {
             final String message = String.format(
@@ -65,39 +65,32 @@ public class DataRecorder
         }
 
         // Create new row to be appended on data file
-        this.fileWriter = new FileWriter(this.dataFilePath, true);
-        this.csvWriter = new CSVWriter(this.fileWriter, ',',
-                CSVWriter.NO_QUOTE_CHARACTER);
-        List<String> newcomerDataRow = this.createNewcomerDataRow(newcomerName,
+        List<String> newcomerDataRow = createNewcomerDataRow(newcomerName,
                 numberYearsCompleted);
-        this.csvWriter.writeNext(newcomerDataRow.toArray(new String[0]));
-        this.csvWriter.close();
+        dataCsvWriter.writeNext(newcomerDataRow.toArray(new String[0]));
+        dataCsvWriter.close();
 
         // Create new row to be appended on exclusion file
-        this.fileWriter = new FileWriter(this.exclusionFilePath, true);
-        this.csvWriter = new CSVWriter(this.fileWriter, ',',
-                CSVWriter.NO_QUOTE_CHARACTER);
-        List<String> newcomerExclusionRow = this.createNewcomerExclusionRow(newcomerName);
-        this.csvWriter.writeNext(newcomerExclusionRow.toArray(new String[0]));
-        this.csvWriter.close();
+        List<String> newcomerExclusionRow = createNewcomerExclusionRow(newcomerName);
+        exclusionCsvWriter.writeNext(newcomerExclusionRow.toArray(new String[0]));
+        exclusionCsvWriter.close();
 
-        logger.info(
-                "Successfully save newcomer[{}] to dataFilePath[{}], exclusionFilePath[{}]",
-                newcomerName, this.dataFilePath, this.exclusionFilePath);
+        logger.info("Successfully save newcomer[{}] to data file, exclusion file",
+                newcomerName);
     }
 
-    public void updateExclusionFile(SecretSanta secretSanta) throws IOException
+    public void updateExclusionFile(CSVReader exclusionCsvReader,
+            CSVWriter exclusionCsvWriter, FileWriter clearExclusionFileWriter,
+            SecretSanta secretSanta) throws IOException
     {
-        logger.info("Start updating EXCLUSION list for[{}] to exclusionFilePath[{}]",
-                secretSanta.getName(), this.exclusionFilePath);
+        logger.info("Start updating EXCLUSION list for[{}] to exclusion file",
+                secretSanta.getName());
 
         // =========== read file and put udpated data in updatedExclusionData ===========
-        this.fileReader = new FileReader(this.exclusionFilePath);
-        this.csvReader = new CSVReader(new FileReader(this.exclusionFilePath));
         List<List<String>> updatedExclusionData = new ArrayList<List<String>>();
 
         String[] entries = null;
-        while ((entries = this.csvReader.readNext()) != null)
+        while ((entries = exclusionCsvReader.readNext()) != null)
         {
             List<String> currentRow = Arrays.asList(entries); // Arrays.asList(entries) is unnmodifiable
             currentRow = new ArrayList<String>(currentRow); // Convert to ArrayList to be modifiable
@@ -144,26 +137,21 @@ public class DataRecorder
 
             updatedExclusionData.add(currentRow);
         }
-        this.csvReader.close();
+        exclusionCsvReader.close();
 
         // =========== delete old data from file ===========
-        this.fileWriter = new FileWriter(this.exclusionFilePath);
-        this.fileWriter.write("");
-        this.fileWriter.close();
+        clearExclusionFileWriter.write("");
+        clearExclusionFileWriter.close();
 
         // =========== save updated data to file ===========
-        this.fileWriter = new FileWriter(this.exclusionFilePath, true);
-        this.csvWriter = new CSVWriter(this.fileWriter, ',',
-                CSVWriter.NO_QUOTE_CHARACTER);
         for (List<String> row : updatedExclusionData)
         {
-            this.csvWriter.writeNext(row.toArray(new String[0]));
+            exclusionCsvWriter.writeNext(row.toArray(new String[0]));
         }
-        this.csvWriter.close();
+        exclusionCsvWriter.close();
 
-        logger.info(
-                "Successfully updated EXCLUSION list for[{}] to exclusionFilePath[{}]",
-                secretSanta.getName(), this.exclusionFilePath);
+        logger.info("Successfully updated EXCLUSION list for[{}] to exclusion file",
+                secretSanta.getName());
     }
 
     /**
@@ -173,7 +161,7 @@ public class DataRecorder
      *            List containing secret santa results to be appended
      * @param dataFilePath
      * @param outputFilePath
-     * @throws Exception 
+     * @throws Exception
      */
     public void save(List<SecretSantaDisplayType> recordList, String dataFilePath,
             CSVWriter writer) throws Exception
@@ -321,16 +309,6 @@ public class DataRecorder
         }
 
         writer.close();
-    }
-
-    public String getDataFilePath()
-    {
-        return this.dataFilePath;
-    }
-
-    public String getExclusionFilePath()
-    {
-        return this.exclusionFilePath;
     }
 
     private List<String> createNewcomerDataRow(String newcomerName, int numberEmptyQuotes)

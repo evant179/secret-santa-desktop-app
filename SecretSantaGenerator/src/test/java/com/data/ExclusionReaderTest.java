@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,9 +13,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.hamcrest.collection.IsMapContaining;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.opencsv.CSVReader;
 
 public class ExclusionReaderTest
 {
@@ -22,27 +26,31 @@ public class ExclusionReaderTest
     private static final String TEST_EXCLUSIONS2_FILE_PATH = "/test_exclusions2.csv";
     private static final Logger logger = LoggerFactory
             .getLogger(ExclusionReaderTest.class);
+    
+    /**
+     * Object to be tested
+     */
+    private ExclusionReader exclusionReader;
+    
+    /**
+     * Set up called before each test case method
+     */
+    @Before
+    public void setUp()
+    {
+        this.exclusionReader = new ExclusionReader();
+    }
 
     @Test
-    public void testExclusionMap()
+    public void testExclusionMap() throws IOException
     {
         File file = new File(
                 getClass().getResource(TEST_EXCLUSIONS2_FILE_PATH).getFile());
+        CSVReader reader = new CSVReader(new FileReader(file.getPath()));
 
-        ExclusionReader exclusionReader = null;
 
-        try
-        {
-            exclusionReader = new ExclusionReader(file.getPath());
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            fail();
-        }
-
-        Map<String, List<String>> nameToExclusionListMap = exclusionReader
-                .getNameToExclusionListMap();
+        Map<String, List<String>> nameToExclusionListMap = this.exclusionReader
+                .getExclusionListDataFromFile(reader);
 
         nameToExclusionListMap
                 .forEach((k, v) -> logger.info("name [" + k + "] ////// values " + v));

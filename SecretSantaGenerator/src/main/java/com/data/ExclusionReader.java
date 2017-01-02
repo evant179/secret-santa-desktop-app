@@ -1,6 +1,5 @@
 package com.data;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,13 +10,12 @@ import com.opencsv.CSVReader;
 
 public class ExclusionReader
 {
-
     private final Map<String, List<String>> nameToExclusionListMap = new HashMap<String, List<String>>();
 
-    public ExclusionReader(String filePath) throws IOException
+    public Map<String, List<String>> getExclusionListDataFromFile(CSVReader reader) throws IOException
     {
-        @SuppressWarnings("resource")
-        CSVReader reader = new CSVReader(new FileReader(filePath));
+        Map<String, List<String>> nameToExclusionNameListMap = new HashMap<String, List<String>>();
+        
         String[] tokens = null;
 
         // read each line
@@ -54,10 +52,7 @@ public class ExclusionReader
                 this.nameToExclusionListMap.put(name, excludedNames);
             }
         }
-    }
 
-    public Map<String, List<String>> getNameToExclusionListMap()
-    {
-        return nameToExclusionListMap;
+        return nameToExclusionNameListMap;
     }
 }
