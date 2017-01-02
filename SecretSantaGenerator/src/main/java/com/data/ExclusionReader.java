@@ -10,8 +10,6 @@ import com.opencsv.CSVReader;
 
 public class ExclusionReader
 {
-    private final Map<String, List<String>> nameToExclusionListMap = new HashMap<String, List<String>>();
-
     public Map<String, List<String>> getExclusionListDataFromFile(CSVReader reader) throws IOException
     {
         Map<String, List<String>> nameToExclusionNameListMap = new HashMap<String, List<String>>();
@@ -49,7 +47,7 @@ public class ExclusionReader
                 // TODO add check here if name/key already exists then show
                 // window
                 // wit error that a duplicate exists
-                this.nameToExclusionListMap.put(name, excludedNames);
+                nameToExclusionNameListMap.put(name, excludedNames);
             }
         }
 
