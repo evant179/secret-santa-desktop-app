@@ -27,7 +27,7 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
 {
     private static final Logger logger = LoggerFactory.getLogger(MainTableView.class);
 
-    private DataReader dataReader = new DataReader();
+    private final DataReader dataReader;
     /**
      * Runnable to cancel combobox editting mode when toggling override mode
      */
@@ -39,14 +39,18 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
     /**
      * Constructor
      * 
+     * @param dataReader
      * @param secretSantaDisplayList
      *            Secret santas to display
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public MainTableView(List<SecretSantaDisplayType2> secretSantaDisplayList)
+    public MainTableView(DataReader dataReader,
+            List<SecretSantaDisplayType2> secretSantaDisplayList)
             throws FileNotFoundException, IOException
     {
+        this.dataReader = dataReader;
+
         this.setEditable(false);
 
         this.setMinHeight(750);
@@ -175,7 +179,7 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
 
     private void constructColumns() throws FileNotFoundException, IOException
     {
-        List<String> yearList = dataReader.parseYearData(Constants.DATA_FILE_PATH);
+        List<String> yearList = this.dataReader.parseYearData();
 
         // ------------ set up name column ------------
         TableColumn<SecretSantaDisplayType2, String> nameColumn = new TableColumn<SecretSantaDisplayType2, String>(

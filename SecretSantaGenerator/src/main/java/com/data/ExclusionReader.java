@@ -10,14 +10,21 @@ import com.opencsv.CSVReader;
 
 public class ExclusionReader
 {
-    public Map<String, List<String>> getExclusionListDataFromFile(CSVReader reader) throws IOException
+    private final CSVReader exclusionCsvReader;
+    
+    public ExclusionReader(CSVReader exclusionCsvReader)
+    {
+        this.exclusionCsvReader = exclusionCsvReader;
+    }
+
+    public Map<String, List<String>> getExclusionListDataFromFile() throws IOException
     {
         Map<String, List<String>> nameToExclusionNameListMap = new HashMap<String, List<String>>();
-        
+
         String[] tokens = null;
 
         // read each line
-        while ((tokens = reader.readNext()) != null)
+        while ((tokens = this.exclusionCsvReader.readNext()) != null)
         {
             String name = null;
             final List<String> excludedNames = new ArrayList<String>();

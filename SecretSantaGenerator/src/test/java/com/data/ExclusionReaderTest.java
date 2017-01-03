@@ -26,31 +26,18 @@ public class ExclusionReaderTest
     private static final String TEST_EXCLUSIONS2_FILE_PATH = "/test_exclusions2.csv";
     private static final Logger logger = LoggerFactory
             .getLogger(ExclusionReaderTest.class);
-    
-    /**
-     * Object to be tested
-     */
-    private ExclusionReader exclusionReader;
-    
-    /**
-     * Set up called before each test case method
-     */
-    @Before
-    public void setUp()
-    {
-        this.exclusionReader = new ExclusionReader();
-    }
 
     @Test
     public void testExclusionMap() throws IOException
     {
         File file = new File(
                 getClass().getResource(TEST_EXCLUSIONS2_FILE_PATH).getFile());
-        CSVReader reader = new CSVReader(new FileReader(file.getPath()));
+        CSVReader exclusionCsvReader = new CSVReader(new FileReader(file.getPath()));
 
-
-        Map<String, List<String>> nameToExclusionListMap = this.exclusionReader
-                .getExclusionListDataFromFile(reader);
+        // object to be tested
+        ExclusionReader exclusionReader = new ExclusionReader(exclusionCsvReader);
+        Map<String, List<String>> nameToExclusionListMap = exclusionReader
+                .getExclusionListDataFromFile();
 
         nameToExclusionListMap
                 .forEach((k, v) -> logger.info("name [" + k + "] ////// values " + v));

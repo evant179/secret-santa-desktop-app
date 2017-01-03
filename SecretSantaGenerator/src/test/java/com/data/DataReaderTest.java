@@ -29,26 +29,6 @@ public class DataReaderTest
     private static final String TEST_EXCLUSIONS2_FILE_PATH = "/test_exclusions2.csv";
     private static final Logger logger = LoggerFactory.getLogger(DataReaderTest.class);
 
-    /**
-     * Object to be tested
-     */
-    private DataReader dataReader;
-
-    /**
-     * Used as a real instance (not mocked)
-     */
-    private ExclusionReader exclusionReader;
-
-    /**
-     * Set up called before each test case method
-     */
-    @Before
-    public void setUp()
-    {
-        this.dataReader = new DataReader();
-        this.exclusionReader = new ExclusionReader();
-    }
-
     @Test
     public void testDataReader() throws IOException
     {
@@ -59,10 +39,12 @@ public class DataReaderTest
         CSVReader exclusionCsvReader = new CSVReader(
                 new FileReader(exclusionsFile.getPath()));
 
-        List<SecretSanta> secretSantaList = new ArrayList<SecretSanta>();
+        ExclusionReader exclusionReader = new ExclusionReader(exclusionCsvReader);
+        // object to be tested
+        DataReader dataReader = new DataReader(dataCsvReader, exclusionReader);
 
-        secretSantaList = this.dataReader.parseDataFileWithExclusionFile(dataCsvReader,
-                exclusionCsvReader, this.exclusionReader);
+        List<SecretSanta> secretSantaList = dataReader
+                .parseDataFileWithExclusionFile();
 
         final String TESTNAME1 = "TESTNAME1";
         final String TESTNAME2 = "TESTNAME2";

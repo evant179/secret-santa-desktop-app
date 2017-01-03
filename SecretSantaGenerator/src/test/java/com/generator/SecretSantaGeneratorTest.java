@@ -7,6 +7,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -47,17 +49,7 @@ public class SecretSantaGeneratorTest
     /**
      * Object to be tested
      */
-    //    private SecretSantaGenerator secretSantaGenerator;
-
-    /**
-     * Used as a real instance (not mocked)
-     */
-    private DataReader dataReader;
-
-    /**
-     * Used as a real instance (not mocked)
-     */
-    private ExclusionReader exclusionReader;
+    private SecretSantaGenerator generator;
 
     /**
      * Set up called before each test case method
@@ -65,8 +57,7 @@ public class SecretSantaGeneratorTest
     @Before
     public void setUp()
     {
-        this.dataReader = new DataReader();
-        this.exclusionReader = new ExclusionReader();
+        this.generator = new SecretSantaGenerator();
     }
 
     @Test
@@ -79,18 +70,16 @@ public class SecretSantaGeneratorTest
         CSVReader exclusionCsvReader = new CSVReader(
                 new FileReader(exclusionsFile.getPath()));
 
-        List<SecretSanta> secretSantaList = new ArrayList<SecretSanta>();
+        ExclusionReader exclusionReader = new ExclusionReader(exclusionCsvReader);
+        DataReader dataReader = new DataReader(dataCsvReader, exclusionReader);
+        List<SecretSanta> secretSantaList = dataReader.parseDataFileWithExclusionFile();
 
-        secretSantaList = this.dataReader.parseDataFileWithExclusionFile(dataCsvReader,
-                exclusionCsvReader, this.exclusionReader);
-
-        SecretSantaGenerator secretSantaGenerator = new SecretSantaGenerator(
+        // test call
+        List<SecretSantaDisplayType> resultList = this.testGenerateCall(this.generator,
                 secretSantaList);
-        List<SecretSantaDisplayType> resultList = null;
-
-        resultList = this.testGenerateCall(secretSantaGenerator, resultList);
 
         // test size
+        assertThat(resultList, notNullValue());
         assertThat(resultList, hasSize(10));
 
         // verify proper exclusions
@@ -119,6 +108,8 @@ public class SecretSantaGeneratorTest
             resultSet.add(r.getSecretSanta());
         });
 
+        assertThat(attendeeSet, hasSize(10));
+        assertThat(resultSet, hasSize(10));
         assertThat(attendeeSet.size(), equalTo(resultList.size()));
         assertThat(resultSet.size(), equalTo(resultList.size()));
         assertThat(attendeeSet, equalTo(resultSet));
@@ -126,17 +117,17 @@ public class SecretSantaGeneratorTest
         logger.info("========== PASS testGeneration1 ==========");
     }
 
-    private List<SecretSantaDisplayType> testGenerateCall(
-            SecretSantaGenerator secretSantaGenerator,
-            List<SecretSantaDisplayType> resultList) throws GenerateException
+    private List<SecretSantaDisplayType> testGenerateCall(SecretSantaGenerator generator,
+            List<SecretSanta> secretSantaList) throws GenerateException
     {
+        List<SecretSantaDisplayType> resultList = null;
         int numAttempts = 0;
         while (numAttempts < Constants.MAX_GENERATE_ATTEMPTS)
         {
             logger.info("-----Generate attempt #: [{}] -----", numAttempts + 1);
             try
             {
-                resultList = secretSantaGenerator.generateSecretSantas();
+                resultList = generator.generateSecretSantas(secretSantaList);
                 break;
             }
             catch (GenerateException e)
@@ -144,7 +135,7 @@ public class SecretSantaGeneratorTest
                 numAttempts++;
                 if (numAttempts == Constants.MAX_GENERATE_ATTEMPTS)
                 {
-                    throw e;
+                    fail(e.getMessage());
                 }
             }
         }

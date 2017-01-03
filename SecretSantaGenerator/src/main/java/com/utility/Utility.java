@@ -1,18 +1,10 @@
 package com.utility;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
-
-import com.gui.Constants;
-import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;
 
 public class Utility
 {
@@ -43,19 +35,4 @@ public class Utility
         }
         return formattedName;
     }
-    
-    public static CSVWriter createCsvWriter(String filePath) throws IOException
-    {
-        FileWriter fileWriter = new FileWriter(filePath, true);
-        CSVWriter csvWriter = new CSVWriter(fileWriter, ',',
-                CSVWriter.NO_QUOTE_CHARACTER);
-        return csvWriter;
-    }
-    
-    public static CSVReader createCsvReader(String filePath) throws FileNotFoundException
-    {
-        CSVReader reader = new CSVReader(new FileReader(filePath));
-        return reader;
-    }
-    
 }

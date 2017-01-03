@@ -1,6 +1,7 @@
 package com.gui;
 
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,20 +70,39 @@ public class SecretSantaGui extends Application
     @Override
     public void start(Stage mainStage) throws Exception
     {
-        this.dataRecorder = new DataRecorder();
-        this.dataReader = new DataReader();
-        this.exclusionReader = new ExclusionReader();
+        // data.csv reader and writer
+        CSVReader dataCsvReader = new CSVReader(new FileReader(Constants.DATA_FILE_PATH));
+        CSVWriter dataCsvWriter = new CSVWriter(
+                new FileWriter(Constants.DATA_FILE_PATH, true), ',',
+                CSVWriter.NO_QUOTE_CHARACTER);
+
+        // exclusions.csv reader and writer
+        CSVReader exclusionCsvReader = new CSVReader(
+                new FileReader(Constants.EXCLUSION_FILE_PATH));
+        CSVWriter exclusionCsvWriter = new CSVWriter(
+                new FileWriter(Constants.EXCLUSION_FILE_PATH, true), ',',
+                CSVWriter.NO_QUOTE_CHARACTER);
+
+        // current_year_data.csv writer
+        CSVWriter generatedResultsDataCsvWriter = new CSVWriter(
+                new FileWriter(Constants.OUTPUT_FILE_PATH), ',',
+                CSVWriter.NO_QUOTE_CHARACTER);
+
+        // TODO verify all these classes work with same reference to the
+        // csv readers/writers
+        this.exclusionReader = new ExclusionReader(exclusionCsvReader);
+        this.dataReader = new DataReader(dataCsvReader, this.exclusionReader);
+        this.dataRecorder = new DataRecorder(dataCsvReader, dataCsvWriter,
+                this.dataReader, exclusionCsvReader, exclusionCsvWriter,
+                generatedResultsDataCsvWriter);
 
         final List<SecretSantaDisplayType2> secretSantaDisplayList;
         try
         {
-            CSVReader dataCsvReader = Utility.createCsvReader(Constants.DATA_FILE_PATH);
-            CSVReader exclusionCsvReader = Utility
-                    .createCsvReader(Constants.EXCLUSION_FILE_PATH);
-
-            secretSantaDisplayList = this.dataReader.parseRawDataFileWithExclusions(
-                    dataCsvReader, exclusionCsvReader, this.exclusionReader);
-            this.mainTableView = new MainTableView(secretSantaDisplayList);
+            secretSantaDisplayList = this.dataReader.parseRawDataFileWithExclusions();
+            // TODO verify it's ok to use same this.dataReader reference
+            this.mainTableView = new MainTableView(this.dataReader,
+                    secretSantaDisplayList);
         }
         catch (FileNotFoundException e)
         {
@@ -198,17 +218,12 @@ public class SecretSantaGui extends Application
         final ObservableList<SecretSantaDisplayType> secretSantaTableList = FXCollections
                 .observableArrayList();
 
-        CSVReader dataCsvReader = Utility.createCsvReader(Constants.DATA_FILE_PATH);
-        CSVReader exclusionCsvReader = Utility
-                .createCsvReader(Constants.EXCLUSION_FILE_PATH);
-
         List<SecretSanta> secretSantaList = this.dataReader
-                .parseDataFileWithExclusionFile(dataCsvReader, exclusionCsvReader,
-                        this.exclusionReader);
+                .parseDataFileWithExclusionFile();
         this.manageAttendees(secretSantaList);
         this.overrideSecretSantaSelections(secretSantaList);
 
-        SecretSantaGenerator generator = new SecretSantaGenerator(secretSantaList);
+        SecretSantaGenerator generator = new SecretSantaGenerator();
         List<SecretSantaDisplayType> displayList = new ArrayList<SecretSantaDisplayType>();
 
         int numAttempts = 0;
@@ -217,7 +232,7 @@ public class SecretSantaGui extends Application
             logger.info("-----Generate attempt #: [{}] -----", numAttempts + 1);
             try
             {
-                displayList = generator.generateSecretSantas();
+                displayList = generator.generateSecretSantas(secretSantaList);
                 break;
             }
             catch (GenerateException e)
@@ -248,10 +263,7 @@ public class SecretSantaGui extends Application
                 {
                     try
                     {
-                        CSVWriter writer = new CSVWriter(
-                                new FileWriter(Constants.OUTPUT_FILE_PATH), ',',
-                                CSVWriter.NO_QUOTE_CHARACTER);
-                        dataRecorder.saveGenerationResults(recordList, Constants.DATA_FILE_PATH, writer);
+                        dataRecorder.saveGenerationResults(recordList);
                         logger.info("Successfully saved current year data");
                         simpleDialogCreator.showSimpleDialog(AlertType.INFORMATION,
                                 String.format("Successfully saved to [%s] !",
@@ -408,8 +420,7 @@ public class SecretSantaGui extends Application
 
     private void processNewcomer()
     {
-        AddNewcomerDialog addNewcomerDialog = new AddNewcomerDialog(this.dataReader,
-                this.exclusionReader, this.dataRecorder);
+        AddNewcomerDialog addNewcomerDialog = new AddNewcomerDialog(this.dataRecorder);
         boolean didSaveOccur = addNewcomerDialog.showAndProcessResult();
         if (didSaveOccur)
         {
@@ -425,15 +436,10 @@ public class SecretSantaGui extends Application
     {
         try
         {
-            CSVReader dataCsvReader = Utility.createCsvReader(Constants.DATA_FILE_PATH);
-            CSVReader exclusionCsvReader = Utility
-                    .createCsvReader(Constants.EXCLUSION_FILE_PATH);
-
             // read data and exclusions files (rather than get current state because
             // the tables will be missing data if checkboxes are unchecked)
             List<SecretSanta> secretSantaList = this.dataReader
-                    .parseDataFileWithExclusionFileForExclusionDialog(dataCsvReader,
-                            exclusionCsvReader, this.exclusionReader);
+                    .parseDataFileWithExclusionFileForExclusionDialog();
             // ask user to select which secret santa's exclusions to edit
             AttendeeChoiceDialog attendeeChoiceDialog = new AttendeeChoiceDialog(
                     secretSantaList);
@@ -448,16 +454,11 @@ public class SecretSantaGui extends Application
                 Optional<SecretSanta> updatedResult = editExclusionDialog.showAndWait();
                 if (updatedResult.isPresent())
                 {
-                    CSVReader exclusionCsvReader2 = Utility
-                            .createCsvReader(Constants.EXCLUSION_FILE_PATH);
-                    CSVWriter exclusionCsvWriter = Utility
-                            .createCsvWriter(Constants.EXCLUSION_FILE_PATH);
                     FileWriter clearExclusionFileWriter = new FileWriter(
                             Constants.EXCLUSION_FILE_PATH);
 
                     // save updated exclusions for selected secret santa
-                    this.dataRecorder.updateExclusionFile(exclusionCsvReader2,
-                            exclusionCsvWriter, clearExclusionFileWriter,
+                    this.dataRecorder.updateExclusionFile(clearExclusionFileWriter,
                             updatedResult.get());
                     this.simpleDialogCreator.showSimpleDialog(AlertType.INFORMATION,
                             String.format(Constants.EDIT_EXCLUSION_DIALOG_SUCCESS,
@@ -495,14 +496,9 @@ public class SecretSantaGui extends Application
         logger.info("Start refreshing program with updated data");
         try
         {
-            CSVReader dataCsvReader = Utility.createCsvReader(Constants.DATA_FILE_PATH);
-            CSVReader exclusionCsvReader = Utility
-                    .createCsvReader(Constants.EXCLUSION_FILE_PATH);
-
             // read updated data file
             final List<SecretSantaDisplayType2> secretSantaDisplayList = this.dataReader
-                    .parseRawDataFileWithExclusions(dataCsvReader, exclusionCsvReader,
-                            this.exclusionReader);
+                    .parseRawDataFileWithExclusions();
 
             // update checkboxes
             this.loadCheckBoxList(secretSantaDisplayList);
