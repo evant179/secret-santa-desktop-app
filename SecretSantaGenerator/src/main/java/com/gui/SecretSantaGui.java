@@ -69,11 +69,7 @@ public class SecretSantaGui extends Application
         this.dataRecorder = new DataRecorder(Constants.DATA_FILE_PATH,
                 Constants.EXCLUSION_FILE_PATH);
         this.dataReader = new DataReader();
-        
-        //Makes sure that all names in eclusion file are in the data
-        //file. If not, program exits with error code.
-        if (!DataValidator.containsAllNames())
-            System.exit(1);
+      
         
         final List<SecretSantaDisplayType2> secretSantaDisplayList;
         try
@@ -272,12 +268,6 @@ public class SecretSantaGui extends Application
 
         // TODO add a SUCCESS/FAIL label that displays after writing.
        
-        //Validates that all secret santas have their own secret santa. If someone
-        //is missing then it generates a new list
-        logger.info("All accounted for: [{}]",DataValidator.allAccountedFor(secretSantaTableList));
-        if (!DataValidator.allAccountedFor(secretSantaTableList))
-           return generateObservableList();
-        else
             return secretSantaTableList;
         
     }
