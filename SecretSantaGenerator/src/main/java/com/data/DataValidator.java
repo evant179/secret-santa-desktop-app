@@ -1,6 +1,8 @@
 package com.data;
 
+import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +10,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +73,7 @@ public class DataValidator implements DataValidatorInterface
     {
         try
         {
+            
             CSVReader csvReader;
             //reads all data from the data and exclusion file
             List<String[]> dataList = new CSVReader(new FileReader(dataFilePath))
@@ -128,11 +132,25 @@ public class DataValidator implements DataValidatorInterface
     public boolean isValidGeneration(List<SecretSanta> secretSantas,
             Map<String, String> attendeeToResultMap)
     {
-        // TODO implement
-
+       
         // for unit testing, you can optionally copy what DataReaderTest did
         // to quickly create a list of SecretSantas (lines 31-47)
-        return false;
+        
+        //Checks each santa's exclusion list to see if their chosen person
+        //is contained in it. If they are, then it's not a valid
+        //generation
+        for (SecretSanta santa : secretSantas)
+        {
+            List<String> excludedNamesForSanta = santa.getExcludedNames();
+            String c = santa.getName();
+            String santasResult = attendeeToResultMap.get(santa.getName());
+            
+            
+            if (excludedNamesForSanta.contains(santasResult))
+                return false;
+        }
+        return true;
     }
+    
 
 }
