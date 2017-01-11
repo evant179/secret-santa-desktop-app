@@ -6,19 +6,14 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
-
 import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -27,11 +22,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.data.CsvFactory;
 import com.data.DataReader;
-import com.data.DataReaderTest;
 import com.data.ExclusionReader;
 import com.gui.Constants;
-import com.gui.SecretSantaDisplayType;
 import com.opencsv.CSVReader;
 
 /**
@@ -60,33 +54,41 @@ public class SecretSantaGeneratorTest
         this.generator = new SecretSantaGenerator();
     }
 
+    /**
+     * Reads in test data files
+     * 
+     * @throws Exception
+     */
     @Test
-    public void testGeneration1() throws IOException, GenerateException
+    public void testGeneration1() throws Exception
     {
+        // ===== set up data =====
         File dataFile = new File(getClass().getResource(TEST_DATA2_FILE_PATH).getFile());
-        CSVReader dataCsvReader = new CSVReader(new FileReader(dataFile.getPath()));
         File exclusionsFile = new File(
                 getClass().getResource(TEST_EXCLUSIONS2_FILE_PATH).getFile());
-        CSVReader exclusionCsvReader = new CSVReader(
-                new FileReader(exclusionsFile.getPath()));
 
-        ExclusionReader exclusionReader = new ExclusionReader(exclusionCsvReader);
-        DataReader dataReader = new DataReader(dataCsvReader, exclusionReader);
+        CsvFactory csvFactory = new CsvFactory(dataFile.getPath(),
+                exclusionsFile.getPath(), null);
+
+        ExclusionReader exclusionReader = new ExclusionReader(csvFactory);
+        DataReader dataReader = new DataReader(csvFactory, exclusionReader);
         List<SecretSanta> secretSantaList = dataReader.parseDataFileWithExclusionFile();
 
-        // test call
-        List<SecretSantaDisplayType> resultList = this.testGenerateCall(this.generator,
-                secretSantaList);
+        // ===== test call =====
+        final Map<String, String> attendeeToResultMap = this
+                .testGenerateCall(secretSantaList);
 
+        // ===== verification =====
         // test size
-        assertThat(resultList, notNullValue());
-        assertThat(resultList, hasSize(10));
+        // NOTE: hamcrest call "aMapWithSize" is not in current 1.3 version
+        assertThat(attendeeToResultMap.entrySet(), hasSize(10));
 
         // verify proper exclusions
-        for (SecretSantaDisplayType type : resultList)
+        for (Map.Entry<String, String> attendeeToResultEntry : attendeeToResultMap
+                .entrySet())
         {
-            final String attendeeName = type.getName();
-            final String resultName = type.getSecretSanta();
+            final String attendeeName = attendeeToResultEntry.getKey();
+            final String resultName = attendeeToResultEntry.getValue();
             logger.info("verify for: ///// attendee[{}] ///// result[{}] /////",
                     attendeeName, resultName);
             assertThat(attendeeName, notNullValue());
@@ -102,32 +104,48 @@ public class SecretSantaGeneratorTest
         // verify uniqueness
         Set<String> attendeeSet = new TreeSet<>();
         Set<String> resultSet = new TreeSet<>();
-        resultList.forEach(r ->
+        attendeeToResultMap.forEach((attendeeName, resultName) ->
         {
-            attendeeSet.add(r.getName());
-            resultSet.add(r.getSecretSanta());
+            attendeeSet.add(attendeeName);
+            resultSet.add(resultName);
         });
 
         assertThat(attendeeSet, hasSize(10));
         assertThat(resultSet, hasSize(10));
-        assertThat(attendeeSet.size(), equalTo(resultList.size()));
-        assertThat(resultSet.size(), equalTo(resultList.size()));
+        assertThat(attendeeSet.size(), equalTo(attendeeToResultMap.size()));
+        assertThat(resultSet.size(), equalTo(attendeeToResultMap.size()));
         assertThat(attendeeSet, equalTo(resultSet));
 
         logger.info("========== PASS testGeneration1 ==========");
     }
 
-    private List<SecretSantaDisplayType> testGenerateCall(SecretSantaGenerator generator,
-            List<SecretSanta> secretSantaList) throws GenerateException
+    /**
+     * Wrapper to call {@link SecretSantaGenerator#generateSecretSantas(List)}.
+     * 
+     * Due to its behavior, an impossible name generation scenario may be ran
+     * into.
+     * 
+     * The method call is attempted {@link Constants#MAX_GENERATE_ATTEMPTS}
+     * times before the test is forced to fail
+     * 
+     * @param secretSantaList
+     *            Secret santa list to generate reults for. Each entry is
+     *            considered an attendee
+     * @return Map with [attendee name as the key] and [corresponding result
+     *         name as the value]. Assert the map size matches the size of the
+     *         secret santa list passed in
+     */
+    private Map<String, String> testGenerateCall(List<SecretSanta> secretSantaList)
     {
-        List<SecretSantaDisplayType> resultList = null;
+        Map<String, String> attendeeToResultMap = new HashMap<String, String>();
         int numAttempts = 0;
         while (numAttempts < Constants.MAX_GENERATE_ATTEMPTS)
         {
             logger.info("-----Generate attempt #: [{}] -----", numAttempts + 1);
             try
             {
-                resultList = generator.generateSecretSantas(secretSantaList);
+                attendeeToResultMap = this.generator
+                        .generateSecretSantas(secretSantaList);
                 break;
             }
             catch (GenerateException e)
@@ -139,6 +157,6 @@ public class SecretSantaGeneratorTest
                 }
             }
         }
-        return resultList;
+        return attendeeToResultMap;
     }
 }

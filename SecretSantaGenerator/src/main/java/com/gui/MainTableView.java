@@ -3,6 +3,7 @@ package com.gui;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,28 +142,36 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
         this.resetCurrentYearColumnSelections();
     }
 
+    /**
+     * Update table display with generated results
+     * 
+     * @param attendeeToResultMap
+     *            Generated attendee name to result name map
+     */
     public void updateSecretSantasWithResults(
-            ObservableList<SecretSantaDisplayType> oldDisplayTypeList)
+            final Map<String, String> attendeeToResultMap)
     {
         logger.info("update table with results");
-        for (SecretSantaDisplayType oldType : oldDisplayTypeList)
+        attendeeToResultMap.forEach((attendeeName, resultName) ->
         {
-            for (SecretSantaDisplayType2 row : this.getItems())
+            // get matching row based on attendee name
+            SecretSantaDisplayType2 attendeeRow = this.getItems().stream()
+                    .filter(row -> attendeeName.equals(row.getName())).findAny()
+                    .orElse(null);
+            if (attendeeRow != null)
             {
-                if (oldType.getName().equals(row.getName()))
-                {
-                    row.getSecretSantaList().get(this.currentYearIndex)
-                            .setValue(oldType.getSecretSanta());
-                    logger.info("after update result: [{}] : [{}]", row.getName(), row
-                            .getSecretSantaList().get(this.currentYearIndex).getValue());
-                    break;
-                }
+                // update row with corresponding result name
+                attendeeRow.getSecretSantaList().get(this.currentYearIndex)
+                        .setValue(resultName);
+                logger.info("after update result: attendee[{}] : result[{}]",
+                        attendeeRow.getName(), attendeeRow.getSecretSantaList()
+                                .get(this.currentYearIndex).getValue());
             }
-        }
+        });
 
         @SuppressWarnings("unchecked")
-        TableColumn<SecretSantaDisplayType2, String> lastColumn = (TableColumn<SecretSantaDisplayType2, String>) // cast
-        this.getColumns().get(getColumns().size() - 1);
+        TableColumn<SecretSantaDisplayType2, String> lastColumn = (TableColumn<SecretSantaDisplayType2, String>) this
+                .getColumns().get(getColumns().size() - 1);
         lastColumn.setCellValueFactory(cellData -> cellData.getValue()
                 .getSecretSantaList().get(this.currentYearIndex));
 

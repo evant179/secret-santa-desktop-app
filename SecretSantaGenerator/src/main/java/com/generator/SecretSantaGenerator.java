@@ -14,8 +14,6 @@ import com.gui.SecretSantaDisplayType;
 
 /**
  * Generator for secret santas
- * 
- * TODO class needs refactoring since it's not really treated like an object
  */
 public class SecretSantaGenerator
 {
@@ -28,24 +26,41 @@ public class SecretSantaGenerator
     public final static String IMPOSSIBLE_SCENARIO_ERROR_MESSAGE = "Secret santa list generated has encountered an impossible scenario. "
             + "Attempt Generate again.";
 
-    public List<SecretSantaDisplayType> generateSecretSantas(
+    /**
+     * Generate a result for each attendee
+     * 
+     * @param secretSantaList
+     *            Secret santa list to generate reults for. Each entry is
+     *            considered an attendee. Will not be modified
+     * @return Map with [attendee name as the key] and [corresponding result
+     *         name as the value]
+     * @throws GenerateException
+     *             Thrown during an impossible generation scenario
+     */
+    public Map<String, String> generateSecretSantas(
             final List<SecretSanta> secretSantaList) throws GenerateException
     {
-        // TODO make secretSantaList unmodifiable
-        final Map<String, String> secretSantaMap = new HashMap<String, String>();
-        final List<SecretSantaDisplayType> displayList = new ArrayList<SecretSantaDisplayType>();
+        // Sort the secret santas from most exclusions to least exclusions. This will lessen
+        // the chance of running into an impossible scenario (where a person has no available
+        // name to assign to)
+        Collections.sort(secretSantaList);
+
+        // create unmodifiable list to ensure no accidental edits
+        List<SecretSanta> unmodifiableSecretSantaList = Collections
+                .unmodifiableList(secretSantaList);
+        final Map<String, String> attendeeToResultMap = new HashMap<String, String>();
 
         // Create "checkbox" of secret santa.
         // Marked false as default--not taken yet;
         // Marked true when taken;
-        for (SecretSanta secretSanta : secretSantaList)
+        for (SecretSanta secretSanta : unmodifiableSecretSantaList)
         {
             // TODO have a check here for attendence
             this.takenNames.put(secretSanta.getName(), false);
         }
 
         // mark rigged names
-        for (SecretSanta secretSanta : secretSantaList)
+        for (SecretSanta secretSanta : unmodifiableSecretSantaList)
         {
             if (secretSanta.getOverridenSelection() != null
                     && !secretSanta.getOverridenSelection().isEmpty())
@@ -56,12 +71,8 @@ public class SecretSantaGenerator
             }
         }
 
-        // Sort the secret santas from most exclusions to least exclusions. This will lessen
-        // the chance of running into an impossible scenario (where a person has no available
-        // name to assign to)
-        Collections.sort(secretSantaList);
-
-        for (SecretSanta secretSanta : secretSantaList)
+        // for each attendee, generate a result
+        for (SecretSanta secretSanta : unmodifiableSecretSantaList)
         {
             if (secretSanta.getOverridenSelection() != null
                     && !secretSanta.getOverridenSelection().isEmpty())
@@ -70,34 +81,24 @@ public class SecretSantaGenerator
                 logger.info("successfully override for [{}]: [{}]", secretSanta.getName(),
                         secretSanta.getOverridenSelection());
                 // Assign name to secret santa map
-                secretSantaMap.put(secretSanta.getName(), riggedName);
+                attendeeToResultMap.put(secretSanta.getName(), riggedName);
             }
             else
             {
                 String assignedName = this.assignSecretSanta(secretSanta,
-                        secretSantaList);
+                        unmodifiableSecretSantaList);
 
                 // Assign name to secret santa map
                 logger.info("///// attendee[{}] ///// result[{}] /////",
                         secretSanta.getName(), assignedName);
-                secretSantaMap.put(secretSanta.getName(), assignedName);
+                attendeeToResultMap.put(secretSanta.getName(), assignedName);
 
                 // Mark the map of taken names as true (taken)
                 this.takenNames.replace(assignedName, true);
             }
         }
 
-        // Convert map to a list displayable on the generated table
-        for (Map.Entry<String, String> entry : secretSantaMap.entrySet())
-        {
-            String name = entry.getKey();
-            String secretSanta = entry.getValue();
-            //            logger.info("///// [{}] ///// [{}] /////", name, secretSanta);
-            displayList.add(
-                    new SecretSantaDisplayType(name.toString(), secretSanta.toString()));
-        }
-
-        return displayList;
+        return attendeeToResultMap;
     }
 
     /**

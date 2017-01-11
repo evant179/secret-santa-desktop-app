@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.data.CsvFactory.FILETYPE;
 import com.gui.Constants;
 import com.gui.SecretSantaDisplayType;
 import com.opencsv.CSVReader;
@@ -27,6 +28,7 @@ import static org.hamcrest.Matchers.hasSize;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
@@ -42,36 +44,65 @@ public class DataRecorderTest
     private static final String TEST_OUTPUT_FILE_PATH = "./test_output.csv";
     private static final Logger logger = LoggerFactory.getLogger(DataRecorderTest.class);
 
-    // TODO convert a lot of common code to a method for easier testing
-    @Test
-    public void testSave1() throws Exception
+    /**
+     * Object to be tested
+     */
+    private DataRecorder dataRecorder;
+
+    /**
+     * Set up called before each test case method
+     */
+    @Before
+    public void setUp()
     {
+    }
+
+    /**
+     * Reads in test data for dataCsvReader
+     * 
+     * Mocks output writer (and everything else)
+     * 
+     * TODO convert a lot of common code to a method for easier testing
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void test_saveGenerationResults() throws Exception
+    {
+        // ===== set up data =====
         File dataFile = new File(getClass().getResource(TEST_DATA2_FILE_PATH).getFile());
         CSVReader dataCsvReader = new CSVReader(new FileReader(dataFile.getPath()));
-        Map<String, String> testMap = createTestAttendeeToResultMap();
 
         // mock objects used for saveGenerationResults
-        CSVWriter mockGeneratedResultsDataCsvWriter = mock(CSVWriter.class);
+        CSVWriter mock_outputCsvWriter = mock(CSVWriter.class);
+        CsvFactory mock_csvFactory = mock(CsvFactory.class);
+
+        // return real CSVReader instance
+        when(mock_csvFactory.createCsvReader(eq(FILETYPE.DATA)))
+                .thenReturn(dataCsvReader);
+        // return mock CSVWriter (used for verification)
+        when(mock_csvFactory.createCsvWriter(eq(FILETYPE.OUTPUT)))
+                .thenReturn(mock_outputCsvWriter);
 
         // mock objects NOT used for saveGenerationResults (no need for verification)
-        CSVWriter mockDataCsvWriter = mock(CSVWriter.class);
-        DataReader mockDataReader = mock(DataReader.class);
-        CSVReader mockExclusionCsvReader = mock(CSVReader.class);
-        CSVWriter mockExclusionCsvWriter = mock(CSVWriter.class);
+        DataReader mock_dataReader = mock(DataReader.class);
 
-        // object to be tested
-        DataRecorder dataRecorder = new DataRecorder(dataCsvReader, mockDataCsvWriter,
-                mockDataReader, mockExclusionCsvReader, mockExclusionCsvWriter,
-                mockGeneratedResultsDataCsvWriter);
+        this.dataRecorder = new DataRecorder(mock_csvFactory, mock_dataReader);
+
+        // create test output
+        Map<String, String> testMap = createTestAttendeeToResultMap();
+
+        // ===== test call =====
         dataRecorder.saveGenerationResults(testMap);
 
-        verify(mockGeneratedResultsDataCsvWriter, times(1)).close();
+        // ===== verification =====
+        verify(mock_outputCsvWriter, times(1)).close();
 
         // verify writeNext was called 11 times: 1 for the header and 10 for existing names.
         // capture the arguments.
         ArgumentCaptor<String[]> writeNextCaptor = ArgumentCaptor
                 .forClass(String[].class);
-        verify(mockGeneratedResultsDataCsvWriter, times(11))
+        verify(mock_outputCsvWriter, times(11))
                 .writeNext(writeNextCaptor.capture());
 
         // verify each captured argument
@@ -127,35 +158,43 @@ public class DataRecorderTest
     }
 
     @Test
-    public void testSave2() throws Exception
+    public void test_saveGenerationResults_withNewcomers() throws Exception
     {
+        // ===== set up data =====
         File dataFile = new File(getClass().getResource(TEST_DATA2_FILE_PATH).getFile());
         CSVReader dataCsvReader = new CSVReader(new FileReader(dataFile.getPath()));
-        Map<String, String> testMap = createTestAttendeeToResultMapWithNewcomers();
 
         // mock objects used for saveGenerationResults
-        CSVWriter mockGeneratedResultsDataCsvWriter = mock(CSVWriter.class);
+        CSVWriter mock_outputCsvWriter = mock(CSVWriter.class);
+        CsvFactory mock_csvFactory = mock(CsvFactory.class);
+
+        // return real CSVReader instance
+        when(mock_csvFactory.createCsvReader(eq(FILETYPE.DATA)))
+                .thenReturn(dataCsvReader);
+        // return mock CSVWriter (used for verification)
+        when(mock_csvFactory.createCsvWriter(eq(FILETYPE.OUTPUT)))
+                .thenReturn(mock_outputCsvWriter);
 
         // mock objects NOT used for saveGenerationResults (no need for verification)
-        CSVWriter mockDataCsvWriter = mock(CSVWriter.class);
-        DataReader mockDataReader = mock(DataReader.class);
-        CSVReader mockExclusionCsvReader = mock(CSVReader.class);
-        CSVWriter mockExclusionCsvWriter = mock(CSVWriter.class);
+        DataReader mock_dataReader = mock(DataReader.class);
 
-        // object to be tested
-        DataRecorder dataRecorder = new DataRecorder(dataCsvReader, mockDataCsvWriter,
-                mockDataReader, mockExclusionCsvReader, mockExclusionCsvWriter,
-                mockGeneratedResultsDataCsvWriter);
+        this.dataRecorder = new DataRecorder(mock_csvFactory, mock_dataReader);
+
+        // create test output
+        Map<String, String> testMap = createTestAttendeeToResultMapWithNewcomers();
+
+        // ===== test call =====
         dataRecorder.saveGenerationResults(testMap);
 
-        verify(mockGeneratedResultsDataCsvWriter, times(1)).close();
+        // ===== verification =====
+        verify(mock_outputCsvWriter, times(1)).close();
 
         // verify writeNext was called 13 times: 1 for the header, 10 for existing names,
         // and 2 for newcomer names.
         // capture the arguments.
         ArgumentCaptor<String[]> writeNextCaptor = ArgumentCaptor
                 .forClass(String[].class);
-        verify(mockGeneratedResultsDataCsvWriter, times(13))
+        verify(mock_outputCsvWriter, times(13))
                 .writeNext(writeNextCaptor.capture());
 
         // verify each captured argument

@@ -10,6 +10,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.data.CsvFactory.FILETYPE;
 import com.generator.SecretSanta;
 import com.gui.Constants;
 import com.opencsv.CSVReader;
@@ -19,7 +20,6 @@ public class DataRecorder
 {
     private static final Logger logger = LoggerFactory.getLogger(DataRecorder.class);
 
-    private final CSVReader dataCsvReader;
     // TODO verify dataCsvWriter behavior--may need updating methods.
     // because originally saveNewcomerToCurrentData and saveGenerationResults had
     // different writers because:
@@ -32,28 +32,23 @@ public class DataRecorder
     //    CSVWriter.NO_QUOTE_CHARACTER);
     // better way is to do what updateExclusionFile does where it updates the actual data?
     // depends if we want the results to be appended on existing data file or a new data file
-    private final CSVWriter dataCsvWriter;
+    private final CsvFactory csvFactory;
     private final DataReader dataReader;
-    private final CSVReader exclusionCsvReader;
-    private final CSVWriter exclusionCsvWriter;
-    private final CSVWriter generatedResultsDataCsvWriter;
 
-    public DataRecorder(CSVReader dataCsvReader, CSVWriter dataCsvWriter,
-            DataReader dataReader, CSVReader exclusionCsvReader,
-            CSVWriter exclusionCsvWriter, CSVWriter generatedResultsDataCsvWriter)
+    public DataRecorder(CsvFactory csvFactory, DataReader dataReader)
     {
-        this.dataCsvReader = dataCsvReader;
-        this.dataCsvWriter = dataCsvWriter;
+        this.csvFactory = csvFactory;
         this.dataReader = dataReader;
-        this.exclusionCsvReader = exclusionCsvReader;
-        this.exclusionCsvWriter = exclusionCsvWriter;
-        this.generatedResultsDataCsvWriter = generatedResultsDataCsvWriter;
     }
 
     public void saveNewcomerToCurrentData(String newcomerName) throws Exception
     {
         logger.info("Start saving newcomer[{}] to data file, exclusion file",
                 newcomerName);
+
+        CSVWriter dataCsvWriter = this.csvFactory.createCsvWriter(FILETYPE.DATA);
+        CSVWriter exclusionCsvWriter = this.csvFactory
+                .createCsvWriter(FILETYPE.EXCLUSION);
 
         // check if name already exists in the data file
         if (this.dataReader.isDuplicateName(newcomerName))
@@ -77,15 +72,15 @@ public class DataRecorder
         }
 
         // Create new row to be appended on data file
-        List<String> newcomerDataRow = createNewcomerDataRow(newcomerName,
+        List<String> newcomerDataRow = this.createNewcomerDataRow(newcomerName,
                 numberYearsCompleted);
-        this.dataCsvWriter.writeNext(newcomerDataRow.toArray(new String[0]));
-        this.dataCsvWriter.close();
+        dataCsvWriter.writeNext(newcomerDataRow.toArray(new String[0]));
+        dataCsvWriter.close();
 
         // Create new row to be appended on exclusion file
-        List<String> newcomerExclusionRow = createNewcomerExclusionRow(newcomerName);
-        this.exclusionCsvWriter.writeNext(newcomerExclusionRow.toArray(new String[0]));
-        this.exclusionCsvWriter.close();
+        List<String> newcomerExclusionRow = this.createNewcomerExclusionRow(newcomerName);
+        exclusionCsvWriter.writeNext(newcomerExclusionRow.toArray(new String[0]));
+        exclusionCsvWriter.close();
 
         logger.info("Successfully save newcomer[{}] to data file, exclusion file",
                 newcomerName);
@@ -97,11 +92,14 @@ public class DataRecorder
         logger.info("Start updating EXCLUSION list for[{}] to exclusion file",
                 secretSanta.getName());
 
+        CSVReader exclusionCsvReader = this.csvFactory
+                .createCsvReader(FILETYPE.EXCLUSION);
+
         // =========== read file and put udpated data in updatedExclusionData ===========
         List<List<String>> updatedExclusionData = new ArrayList<List<String>>();
 
         String[] entries = null;
-        while ((entries = this.exclusionCsvReader.readNext()) != null)
+        while ((entries = exclusionCsvReader.readNext()) != null)
         {
             List<String> currentRow = Arrays.asList(entries); // Arrays.asList(entries) is unnmodifiable
             currentRow = new ArrayList<String>(currentRow); // Convert to ArrayList to be modifiable
@@ -148,18 +146,20 @@ public class DataRecorder
 
             updatedExclusionData.add(currentRow);
         }
-        this.exclusionCsvReader.close();
+        exclusionCsvReader.close();
 
         // =========== delete old data from file ===========
-        clearExclusionFileWriter.write("");
+        clearExclusionFileWriter.write(""); // TODO may have issues due to exclusionCsvReader
         clearExclusionFileWriter.close();
 
         // =========== save updated data to file ===========
+        CSVWriter exclusionCsvWriter = this.csvFactory
+                .createCsvWriter(FILETYPE.EXCLUSION);
         for (List<String> row : updatedExclusionData)
         {
-            this.exclusionCsvWriter.writeNext(row.toArray(new String[0]));
+            exclusionCsvWriter.writeNext(row.toArray(new String[0]));
         }
-        this.exclusionCsvWriter.close();
+        exclusionCsvWriter.close();
 
         logger.info("Successfully updated EXCLUSION list for[{}] to exclusion file",
                 secretSanta.getName());
@@ -182,10 +182,12 @@ public class DataRecorder
         // first read data.csv
         // then append recordList at end
 
+        CSVReader dataCsvReader = this.csvFactory.createCsvReader(FILETYPE.DATA);
+        CSVWriter outputCsvWriter = this.csvFactory.createCsvWriter(FILETYPE.OUTPUT);
         int rowSize = 0;
 
         String[] entries = null;
-        while ((entries = this.dataCsvReader.readNext()) != null)
+        while ((entries = dataCsvReader.readNext()) != null)
         {
             List<String> list = Arrays.asList(entries); // Arrays.asList(entries) is unnmodifiable
             list = new ArrayList<String>(list); // Convert to ArrayList to be modifiable
@@ -217,7 +219,7 @@ public class DataRecorder
             }
 
             checkRowSize(rowSize, list);
-            this.generatedResultsDataCsvWriter.writeNext(list.toArray(new String[0]));
+            outputCsvWriter.writeNext(list.toArray(new String[0]));
         }
 
         // Save newcomers
@@ -233,10 +235,10 @@ public class DataRecorder
             newComerRow.set(0, newComerName); // set name as first spot in row
             newComerRow.set(rowSize - 1, newComerResult); // set secret santa as last spot in row
             checkRowSize(rowSize, newComerRow);
-            this.generatedResultsDataCsvWriter.writeNext(newComerRow.toArray(new String[0]));
+            outputCsvWriter.writeNext(newComerRow.toArray(new String[0]));
         }
 
-        this.generatedResultsDataCsvWriter.close();
+        outputCsvWriter.close();
     }
 
     private List<String> createNewcomerDataRow(String newcomerName, int numberEmptyQuotes)

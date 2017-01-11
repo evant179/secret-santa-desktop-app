@@ -13,6 +13,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.data.CsvFactory;
 import com.data.DataReader;
 import com.data.DataRecorder;
 import com.data.ExclusionReader;
@@ -70,31 +71,12 @@ public class SecretSantaGui extends Application
     @Override
     public void start(Stage mainStage) throws Exception
     {
-        // data.csv reader and writer
-        CSVReader dataCsvReader = new CSVReader(new FileReader(Constants.DATA_FILE_PATH));
-        CSVWriter dataCsvWriter = new CSVWriter(
-                new FileWriter(Constants.DATA_FILE_PATH, true), ',',
-                CSVWriter.NO_QUOTE_CHARACTER);
+        CsvFactory csvFactory = new CsvFactory(Constants.DATA_FILE_PATH,
+                Constants.EXCLUSION_FILE_PATH, Constants.OUTPUT_FILE_PATH);
 
-        // exclusions.csv reader and writer
-        CSVReader exclusionCsvReader = new CSVReader(
-                new FileReader(Constants.EXCLUSION_FILE_PATH));
-        CSVWriter exclusionCsvWriter = new CSVWriter(
-                new FileWriter(Constants.EXCLUSION_FILE_PATH, true), ',',
-                CSVWriter.NO_QUOTE_CHARACTER);
-
-        // current_year_data.csv writer
-        CSVWriter generatedResultsDataCsvWriter = new CSVWriter(
-                new FileWriter(Constants.OUTPUT_FILE_PATH), ',',
-                CSVWriter.NO_QUOTE_CHARACTER);
-
-        // TODO verify all these classes work with same reference to the
-        // csv readers/writers
-        this.exclusionReader = new ExclusionReader(exclusionCsvReader);
-        this.dataReader = new DataReader(dataCsvReader, this.exclusionReader);
-        this.dataRecorder = new DataRecorder(dataCsvReader, dataCsvWriter,
-                this.dataReader, exclusionCsvReader, exclusionCsvWriter,
-                generatedResultsDataCsvWriter);
+        this.exclusionReader = new ExclusionReader(csvFactory);
+        this.dataReader = new DataReader(csvFactory, this.exclusionReader);
+        this.dataRecorder = new DataRecorder(csvFactory, this.dataReader);
 
         final List<SecretSantaDisplayType2> secretSantaDisplayList;
         try
@@ -192,8 +174,10 @@ public class SecretSantaGui extends Application
     {
         try
         {
-            this.mainTableView
-                    .updateSecretSantasWithResults(this.generateObservableList());
+            // make final copy of map to pass into table for viewing
+            final Map<String, String> attendeeToResultMap = new HashMap<>(
+                    this.generateSecretSantasBasedOnCurrentState());
+            this.mainTableView.updateSecretSantasWithResults(attendeeToResultMap);
         }
         catch (Exception e)
         {
@@ -205,34 +189,40 @@ public class SecretSantaGui extends Application
     }
 
     /**
-     * Generate an observable list (rows) for the secret santa assignment table
+     * Generate results for secret santa attendees based on program's current
+     * state, which includes: checked attendees, overridden results
      * 
-     * @return observable list of secret santa assignments
-     * @throws IOException
+     * @return Map with [attendee name as the key] and [corresponding result
+     *         name as the value]
      * @throws FileNotFoundException
+     * @throws IOException
      * @throws GenerateException
      */
-    private ObservableList<SecretSantaDisplayType> generateObservableList()
+    private Map<String, String> generateSecretSantasBasedOnCurrentState()
             throws FileNotFoundException, IOException, GenerateException
     {
-        final ObservableList<SecretSantaDisplayType> secretSantaTableList = FXCollections
-                .observableArrayList();
+        final SecretSantaGenerator generator = new SecretSantaGenerator();
+        Map<String, String> attendeeToResultMap = new HashMap<String, String>();
 
-        List<SecretSanta> secretSantaList = this.dataReader
+        // read in all secret santas and set up for generation
+        final List<SecretSanta> secretSantaList = this.dataReader
                 .parseDataFileWithExclusionFile();
+        // modify secret santa list to only contain attendees
         this.manageAttendees(secretSantaList);
+        // override results for the rigged secret santas
         this.overrideSecretSantaSelections(secretSantaList);
 
-        SecretSantaGenerator generator = new SecretSantaGenerator();
-        List<SecretSantaDisplayType> displayList = new ArrayList<SecretSantaDisplayType>();
-
+        // wrap generation call. due to its behavior, an impossible name generation
+        // scenario may be ran into.
+        // attempt X times before forcing a failure
         int numAttempts = 0;
         while (numAttempts < Constants.MAX_GENERATE_ATTEMPTS)
         {
             logger.info("-----Generate attempt #: [{}] -----", numAttempts + 1);
             try
             {
-                displayList = generator.generateSecretSantas(secretSantaList);
+                // attempt generation
+                attendeeToResultMap = generator.generateSecretSantas(secretSantaList);
                 break;
             }
             catch (GenerateException e)
@@ -240,22 +230,19 @@ public class SecretSantaGui extends Application
                 numAttempts++;
                 if (numAttempts == Constants.MAX_GENERATE_ATTEMPTS)
                 {
+                    // force failure since generation exceeded X number of attempts
                     throw e;
                 }
             }
         }
 
-        for (SecretSantaDisplayType row : displayList)
-        {
-            secretSantaTableList.add(row);
-        }
-
         // if there are items in displayList, then enable save button
-        if (displayList.size() > 0)
+        if (attendeeToResultMap.size() > 0)
         {
             this.saveButton.setDisable(false);
-            final List<SecretSantaDisplayType> recordList = new ArrayList<SecretSantaDisplayType>(
-                    displayList);
+            // make final copy of map to pass into separate thread for saving
+            final Map<String, String> attendeeToResultMapCopy = new HashMap<>(
+                    attendeeToResultMap);
             this.saveButton.setOnAction(new EventHandler<ActionEvent>()
             {
                 @Override
@@ -263,7 +250,8 @@ public class SecretSantaGui extends Application
                 {
                     try
                     {
-                        dataRecorder.saveGenerationResults(recordList);
+                        // when Save button is pressed, save generation results
+                        dataRecorder.saveGenerationResults(attendeeToResultMapCopy);
                         logger.info("Successfully saved current year data");
                         simpleDialogCreator.showSimpleDialog(AlertType.INFORMATION,
                                 String.format("Successfully saved to [%s] !",
@@ -284,10 +272,9 @@ public class SecretSantaGui extends Application
             this.saveButton.setDisable(true);
         }
 
-        // TODO add a SUCCESS/FAIL label that displays after writing.
-        // a new method that checks if everyone is accounted for (DataValidator)
+        // TODO a new method that checks if everyone is accounted for (DataValidator)
 
-        return secretSantaTableList;
+        return attendeeToResultMap;
     }
 
     private void manageAttendees(List<SecretSanta> secretSantaList)
