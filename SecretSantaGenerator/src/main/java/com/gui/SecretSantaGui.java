@@ -78,7 +78,7 @@ public class SecretSantaGui extends Application
         this.dataReader = new DataReader(csvFactory, this.exclusionReader);
         this.dataRecorder = new DataRecorder(csvFactory, this.dataReader);
 
-        final List<SecretSantaDisplayType2> secretSantaDisplayList;
+        final List<SecretSantaDisplayType> secretSantaDisplayList;
         try
         {
             secretSantaDisplayList = this.dataReader.parseRawDataFileWithExclusions();
@@ -109,7 +109,7 @@ public class SecretSantaGui extends Application
     }
 
     private void initializeCheckBoxesPane(
-            List<SecretSantaDisplayType2> secretSantaDisplayList)
+            List<SecretSantaDisplayType> secretSantaDisplayList)
     {
         this.checkBoxesPane.setMinWidth(200);
         this.checkBoxesPane.setPadding(new Insets(10, 0, 10, 0));
@@ -119,11 +119,11 @@ public class SecretSantaGui extends Application
         this.checkBoxesPane.getChildren().addAll(this.checkBoxList);
     }
 
-    private void loadCheckBoxList(List<SecretSantaDisplayType2> secretSantaDisplayList)
+    private void loadCheckBoxList(List<SecretSantaDisplayType> secretSantaDisplayList)
     {
         this.checkBoxList.clear();
 
-        for (SecretSantaDisplayType2 secretSanta : secretSantaDisplayList)
+        for (SecretSantaDisplayType secretSanta : secretSantaDisplayList)
         {
             CheckBox checkbox = new CheckBox(secretSanta.getName());
             checkbox.setUserData(secretSanta);
@@ -139,14 +139,14 @@ public class SecretSantaGui extends Application
                 {
                     if (newValue)
                     {
-                        SecretSantaDisplayType2 attendee = (SecretSantaDisplayType2) checkbox
+                        SecretSantaDisplayType attendee = (SecretSantaDisplayType) checkbox
                                 .getUserData();
                         logger.info("include attendee [{}]", attendee.getName());
                         mainTableView.addAttendee(attendee);
                     }
                     else
                     {
-                        SecretSantaDisplayType2 attendee = (SecretSantaDisplayType2) checkbox
+                        SecretSantaDisplayType attendee = (SecretSantaDisplayType) checkbox
                                 .getUserData();
                         logger.info("remove attendee [{}]", attendee.getName());
                         mainTableView.removeAttendee(attendee.getName());
@@ -284,7 +284,7 @@ public class SecretSantaGui extends Application
             // remove from list of not attending
             if (!checkbox.isSelected())
             {
-                SecretSantaDisplayType2 attendee = (SecretSantaDisplayType2) checkbox
+                SecretSantaDisplayType attendee = (SecretSantaDisplayType) checkbox
                         .getUserData();
                 boolean isSuccess = secretSantaList
                         .removeIf(a -> a.getName().equals(attendee.getName()));
@@ -297,7 +297,7 @@ public class SecretSantaGui extends Application
     private void overrideSecretSantaSelections(List<SecretSanta> secretSantas)
     {
         Map<String, String> nameToOverriddenSelectedNameMap = new HashMap<String, String>();
-        for (SecretSantaDisplayType2 row : this.mainTableView.getItems())
+        for (SecretSantaDisplayType row : this.mainTableView.getItems())
         {
             int indexForLatestYear = row.getSecretSantaList().size() - 1;
             String overrideenName = row.getSecretSantaList().get(indexForLatestYear)
@@ -480,7 +480,7 @@ public class SecretSantaGui extends Application
         try
         {
             // read updated data file
-            final List<SecretSantaDisplayType2> secretSantaDisplayList = this.dataReader
+            final List<SecretSantaDisplayType> secretSantaDisplayList = this.dataReader
                     .parseRawDataFileWithExclusions();
 
             // update checkboxes

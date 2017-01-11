@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.data.CsvFactory.FILETYPE;
 import com.generator.SecretSanta;
-import com.gui.SecretSantaDisplayType2;
+import com.gui.SecretSantaDisplayType;
 import com.opencsv.CSVReader;
 
 public class DataReader
@@ -207,12 +207,12 @@ public class DataReader
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public List<SecretSantaDisplayType2> parseRawDataFileWithExclusions()
+    public List<SecretSantaDisplayType> parseRawDataFileWithExclusions()
             throws FileNotFoundException, IOException
     {
         CSVReader dataCsvReader = this.csvFactory.createCsvReader(FILETYPE.DATA);
 
-        final List<SecretSantaDisplayType2> secretSantaDisplayList = new ArrayList<SecretSantaDisplayType2>();
+        final List<SecretSantaDisplayType> secretSantaDisplayList = new ArrayList<SecretSantaDisplayType>();
         String[] tokens = null;
 
         // get exclusion data
@@ -266,7 +266,7 @@ public class DataReader
                 }
 
                 // Create SecretSanta for each row entry
-                SecretSantaDisplayType2 secretSantaDisplayType = new SecretSantaDisplayType2(
+                SecretSantaDisplayType secretSantaDisplayType = new SecretSantaDisplayType(
                         name, previousSecretSantas, excludedNames);
                 // Add SecretSanta to list to be returned
                 secretSantaDisplayList.add(secretSantaDisplayType);

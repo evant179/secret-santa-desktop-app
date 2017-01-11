@@ -8,7 +8,12 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-public class SecretSantaDisplayType2
+/**
+ * Display type for the main table view {@link MainTableView}.
+ *
+ * Each instance of this type represents a row in the table.
+ */
+public class SecretSantaDisplayType
 {
     private final SimpleStringProperty name;
 
@@ -18,7 +23,7 @@ public class SecretSantaDisplayType2
 
     private String selectedName;
 
-    public SecretSantaDisplayType2(String name, List<String> secretSantaList,
+    public SecretSantaDisplayType(String name, List<String> secretSantaList,
             List<String> exclusionList)
     {
         this.name = new SimpleStringProperty(name);
