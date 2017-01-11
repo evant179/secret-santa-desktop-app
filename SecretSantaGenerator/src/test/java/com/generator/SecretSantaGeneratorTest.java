@@ -43,7 +43,7 @@ public class SecretSantaGeneratorTest
     /**
      * Object to be tested
      */
-    private SecretSantaGenerator generator;
+    private ResultGenerator generator;
 
     /**
      * Set up called before each test case method
@@ -51,7 +51,7 @@ public class SecretSantaGeneratorTest
     @Before
     public void setUp()
     {
-        this.generator = new SecretSantaGenerator();
+        this.generator = new ResultGenerator();
     }
 
     /**
@@ -120,7 +120,7 @@ public class SecretSantaGeneratorTest
     }
 
     /**
-     * Wrapper to call {@link SecretSantaGenerator#generateSecretSantas(List)}.
+     * Wrapper to call {@link ResultGenerator#generateSecretSantas(List)}.
      * 
      * Due to its behavior, an impossible name generation scenario may be ran
      * into.

@@ -19,7 +19,7 @@ import com.data.DataRecorder;
 import com.data.ExclusionReader;
 import com.generator.GenerateException;
 import com.generator.SecretSanta;
-import com.generator.SecretSantaGenerator;
+import com.generator.ResultGenerator;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.utility.Utility;
@@ -201,7 +201,7 @@ public class SecretSantaGui extends Application
     private Map<String, String> generateSecretSantasBasedOnCurrentState()
             throws FileNotFoundException, IOException, GenerateException
     {
-        final SecretSantaGenerator generator = new SecretSantaGenerator();
+        final ResultGenerator generator = new ResultGenerator();
         Map<String, String> attendeeToResultMap = new HashMap<String, String>();
 
         // read in all secret santas and set up for generation

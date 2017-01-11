@@ -1,9 +1,7 @@
 package com.data;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +14,9 @@ import com.generator.SecretSanta;
 import com.gui.SecretSantaDisplayType;
 import com.opencsv.CSVReader;
 
+/**
+ * Class to read data from the data file
+ */
 public class DataReader
 {
     private static final Logger logger = LoggerFactory.getLogger(DataReader.class);
@@ -23,6 +24,12 @@ public class DataReader
     private final CsvFactory csvFactory;
     private final ExclusionReader exclusionReader;
 
+    /**
+     * Constructor
+     * 
+     * @param csvFactory
+     * @param exclusionReader
+     */
     public DataReader(CsvFactory csvFactory, ExclusionReader exclusionReader)
     {
         this.csvFactory = csvFactory;

@@ -16,7 +16,8 @@ public class CsvFactory
     /**
      * Enumeration specifying file type.
      * 
-     * Used to store file path.
+     * Used to store file path and is treated as a static final due to Java
+     * handling of enumerations.
      */
     public enum FILETYPE
     {
@@ -43,7 +44,6 @@ public class CsvFactory
         {
             this.filePath = filePath;
         }
-
     }
 
     /**

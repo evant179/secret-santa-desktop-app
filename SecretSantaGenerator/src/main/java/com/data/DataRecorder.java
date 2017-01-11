@@ -12,35 +12,38 @@ import org.slf4j.LoggerFactory;
 
 import com.data.CsvFactory.FILETYPE;
 import com.generator.SecretSanta;
-import com.gui.Constants;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
+/**
+ * Class used for updating existing files and writing new files
+ */
 public class DataRecorder
 {
     private static final Logger logger = LoggerFactory.getLogger(DataRecorder.class);
 
-    // TODO verify dataCsvWriter behavior--may need updating methods.
-    // because originally saveNewcomerToCurrentData and saveGenerationResults had
-    // different writers because:
-    // 1. saveNewcomerToCurrentData appended to existing file
-    // 2. and saveGenerationResults saved to new file
-    // ...(doing this for now)ez fix would be to pass in a separate CSVWriter specifically for
-    // saveGenerationResults where it's instantiated by:
-    // CSVWriter writer = new CSVWriter(
-    //    new FileWriter(Constants.OUTPUT_FILE_PATH), ',',
-    //    CSVWriter.NO_QUOTE_CHARACTER);
-    // better way is to do what updateExclusionFile does where it updates the actual data?
-    // depends if we want the results to be appended on existing data file or a new data file
     private final CsvFactory csvFactory;
     private final DataReader dataReader;
 
+    /**
+     * Constructor
+     * 
+     * @param csvFactory
+     * @param dataReader
+     */
     public DataRecorder(CsvFactory csvFactory, DataReader dataReader)
     {
         this.csvFactory = csvFactory;
         this.dataReader = dataReader;
     }
 
+    /**
+     * Save newcomer to data file and exclusion file
+     * 
+     * @param newcomerName
+     *            Newcomer name to be saved
+     * @throws Exception
+     */
     public void saveNewcomerToCurrentData(String newcomerName) throws Exception
     {
         logger.info("Start saving newcomer[{}] to data file, exclusion file",
@@ -86,6 +89,13 @@ public class DataRecorder
                 newcomerName);
     }
 
+    /**
+     * Update exclusion file when a attendee's exclusion list is updated
+     * 
+     * @param secretSanta
+     *            Secret santa attendee
+     * @throws IOException
+     */
     public void updateExclusionFile(SecretSanta secretSanta) throws IOException
     {
         logger.info("Start updating EXCLUSION list for[{}] to exclusion file",
@@ -167,14 +177,10 @@ public class DataRecorder
     }
 
     /**
-     * TODO change save2 to work for SecretSantaDisplayType2 with unit tests.
-     * switch over when done Append new secret santa results onto the current
-     * data
+     * Save generated results into an output file
      * 
      * @param resultMap
      *            Map containing secret santa results to be appended
-     * @param dataFilePath
-     * @param outputFilePath
      * @throws Exception
      */
     public void saveGenerationResults(final Map<String, String> resultMap)
@@ -242,6 +248,16 @@ public class DataRecorder
         outputCsvWriter.close();
     }
 
+    /**
+     * Create newcomer row for the data file
+     * 
+     * @param newcomerName
+     *            Newcomer name
+     * @param numberEmptyQuotes
+     *            Number of empty names for each year secret santa event has
+     *            occured
+     * @return Row ready for saving to data file
+     */
     private List<String> createNewcomerDataRow(String newcomerName, int numberEmptyQuotes)
     {
         List<String> newcomerRow = new ArrayList<String>();
@@ -253,6 +269,12 @@ public class DataRecorder
         return newcomerRow;
     }
 
+    /**
+     * Create newcomer row for the exclusion file
+     * 
+     * @param newcomerName
+     * @return Row ready for saving to exclusion file
+     */
     private List<String> createNewcomerExclusionRow(String newcomerName)
     {
         List<String> newcomerRow = new ArrayList<String>();
@@ -260,6 +282,16 @@ public class DataRecorder
         return newcomerRow;
     }
 
+    /**
+     * Verify number of columns for a row is consistent
+     * 
+     * @param rowSize
+     *            Expected column size for the row
+     * @param list
+     *            Represents a row
+     * @throws Exception
+     *             Thrown if row does not have expected number of columns
+     */
     private void checkRowSize(int rowSize, List<String> list) throws Exception
     {
         if (rowSize != list.size())

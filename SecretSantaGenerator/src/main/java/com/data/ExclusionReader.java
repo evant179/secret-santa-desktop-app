@@ -9,15 +9,30 @@ import java.util.Map;
 import com.data.CsvFactory.FILETYPE;
 import com.opencsv.CSVReader;
 
+/**
+ * Class to read data from the exclusion file
+ */
 public class ExclusionReader
 {
     private final CsvFactory csvFactory;
 
+    /**
+     * Constructor
+     * 
+     * @param csvFactory
+     */
     public ExclusionReader(CsvFactory csvFactory)
     {
         this.csvFactory = csvFactory;
     }
 
+    /**
+     * Retrieve data from the exclusion file
+     * 
+     * @return Map with [attendee name as key] and [list of exclusion names as
+     *         value]
+     * @throws IOException
+     */
     public Map<String, List<String>> getExclusionListDataFromFile() throws IOException
     {
         CSVReader exclusionCsvReader = this.csvFactory

@@ -7,8 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Secret santa invite. Keeps track of Name of person and their excluded secret
- * santas
+ * Secret santa attendee type.
+ * 
+ * Contains attendee name and corresponding list of excluded names.
  */
 public class SecretSanta implements Comparable<SecretSanta>
 {
@@ -18,6 +19,14 @@ public class SecretSanta implements Comparable<SecretSanta>
     private List<String> excludedNames;
     private String overridenSelection;
 
+    /**
+     * Constructor
+     * 
+     * @param name
+     *            Attendee name
+     * @param excludedNames
+     *            List of excluded names
+     */
     public SecretSanta(String name, List<String> excludedNames)
     {
         this.name = name;
@@ -29,7 +38,7 @@ public class SecretSanta implements Comparable<SecretSanta>
             this.excludedNames = new ArrayList<String>();
         }
 
-        // Add own name--you don't yourself as a secret santa
+        // Add own name--you don't receive yourself as a secret santa result
         if (!this.excludedNames.contains(this.name))
         {
             this.excludedNames.add(this.name);
@@ -56,6 +65,11 @@ public class SecretSanta implements Comparable<SecretSanta>
         this.overridenSelection = overridenSelection;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     @Override
     public boolean equals(Object obj)
     {
@@ -82,6 +96,16 @@ public class SecretSanta implements Comparable<SecretSanta>
 
     // TODO learn about overriding hashCode
 
+    /*
+     * Sort from highest number of excluded names to lower number of excluded
+     * names.
+     * 
+     * Used for faster results in result generation
+     * 
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
     @Override
     public int compareTo(SecretSanta s)
     {

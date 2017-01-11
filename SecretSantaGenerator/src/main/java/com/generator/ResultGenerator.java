@@ -11,12 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Generator for secret santas
+ * Result generator for secret santa attendees
  */
-public class SecretSantaGenerator
+public class ResultGenerator
 {
     private static final Logger logger = LoggerFactory
-            .getLogger(SecretSantaGenerator.class);
+            .getLogger(ResultGenerator.class);
 
     private final Map<String, Boolean> takenNames = new HashMap<String, Boolean>();
     private final Random random = new Random();
