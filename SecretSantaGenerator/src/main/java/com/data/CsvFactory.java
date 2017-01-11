@@ -89,6 +89,32 @@ public class CsvFactory
         if (fileType == FILETYPE.DATA || fileType == FILETYPE.EXCLUSION)
         {
             // append existing files
+            fileWriter = this.createFileWriter(fileType, true);
+        }
+        else
+        {
+            // FILETYPE.OUTPUT
+            // write brand new file
+            fileWriter = this.createFileWriter(fileType, false);
+        }
+        return new CSVWriter(fileWriter, ',', CSVWriter.NO_QUOTE_CHARACTER);
+    }
+
+    /**
+     * Create {@link FileWriter} based on specified {@link FILETYPE}
+     * 
+     * @param fileType
+     * @param isAppend
+     * @return
+     * @throws IOException
+     */
+    public FileWriter createFileWriter(FILETYPE fileType, boolean isAppend)
+            throws IOException
+    {
+        final FileWriter fileWriter;
+        if (isAppend)
+        {
+            // append existing files
             fileWriter = new FileWriter(fileType.filePath, true);
         }
         else
@@ -97,6 +123,6 @@ public class CsvFactory
             // write brand new file
             fileWriter = new FileWriter(fileType.filePath);
         }
-        return new CSVWriter(fileWriter, ',', CSVWriter.NO_QUOTE_CHARACTER);
+        return fileWriter;
     }
 }

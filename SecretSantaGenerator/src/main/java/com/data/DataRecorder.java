@@ -86,8 +86,7 @@ public class DataRecorder
                 newcomerName);
     }
 
-    public void updateExclusionFile(FileWriter clearExclusionFileWriter,
-            SecretSanta secretSanta) throws IOException
+    public void updateExclusionFile(SecretSanta secretSanta) throws IOException
     {
         logger.info("Start updating EXCLUSION list for[{}] to exclusion file",
                 secretSanta.getName());
@@ -149,6 +148,8 @@ public class DataRecorder
         exclusionCsvReader.close();
 
         // =========== delete old data from file ===========
+        FileWriter clearExclusionFileWriter = this.csvFactory
+                .createFileWriter(FILETYPE.EXCLUSION, false);
         clearExclusionFileWriter.write(""); // TODO may have issues due to exclusionCsvReader
         clearExclusionFileWriter.close();
 

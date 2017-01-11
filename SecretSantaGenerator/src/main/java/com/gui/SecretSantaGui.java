@@ -441,12 +441,8 @@ public class SecretSantaGui extends Application
                 Optional<SecretSanta> updatedResult = editExclusionDialog.showAndWait();
                 if (updatedResult.isPresent())
                 {
-                    FileWriter clearExclusionFileWriter = new FileWriter(
-                            Constants.EXCLUSION_FILE_PATH);
-
                     // save updated exclusions for selected secret santa
-                    this.dataRecorder.updateExclusionFile(clearExclusionFileWriter,
-                            updatedResult.get());
+                    this.dataRecorder.updateExclusionFile(updatedResult.get());
                     this.simpleDialogCreator.showSimpleDialog(AlertType.INFORMATION,
                             String.format(Constants.EDIT_EXCLUSION_DIALOG_SUCCESS,
                                     updatedResult.get().getName()));
