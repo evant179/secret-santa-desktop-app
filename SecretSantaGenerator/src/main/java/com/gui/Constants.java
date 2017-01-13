@@ -12,6 +12,9 @@ public final class Constants
     public static final String DATA_READ_ERROR = "Cannot read data:\n\n%s";
     public static final String GENERATE_RESULTS_ERROR = "Cannot generate results:\n\n%s";
 
+    public static final String OVERRIDE_ERROR = "Could not map [attendee "
+            + "name with overridded result] with [current secret santas]";
+
     public static final int MAX_GENERATE_ATTEMPTS = 100;
 
     public static final String EXCLUSION_BUTTON_NAME = "Edit Exclusions";

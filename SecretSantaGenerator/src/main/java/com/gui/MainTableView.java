@@ -2,8 +2,10 @@ package com.gui;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,6 +142,27 @@ public class MainTableView extends TableView<SecretSantaDisplayType>
         String result = isSuccess ? "SUCCESS" : "FAILURE";
         logger.info("removeAttendee of [{}] is [{}]", name, result);
         this.resetCurrentYearColumnSelections();
+    }
+
+    /**
+     * Get map of [attendee name] to corresponding [overridden result name], if
+     * available
+     * 
+     * @return Map of [attendee name] to [overridden result name]
+     */
+    public Map<String, String> getAttendeeNameToOverridenResultNameMap()
+    {
+        // note: for each display type, if a name exists at currentYearIndex,
+        // then assume that's the overridden name
+        Map<String, String> nameToOverriddenNameMap = this.getItems().stream().filter(
+                type -> null != type.getSecretSantaList().get(currentYearIndex).getValue()
+                        && !type.getSecretSantaList().get(currentYearIndex).getValue()
+                                .isEmpty()) // filter for only selected overrides
+                .collect(Collectors.toMap(SecretSantaDisplayType::getName, type -> type
+                        .getSecretSantaList().get(currentYearIndex).getValue()));
+        // if no overridden result names found, then map returned is empty
+
+        return nameToOverriddenNameMap;
     }
 
     /**

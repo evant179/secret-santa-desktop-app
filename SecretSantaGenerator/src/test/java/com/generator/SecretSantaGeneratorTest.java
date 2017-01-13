@@ -72,7 +72,8 @@ public class SecretSantaGeneratorTest
 
         ExclusionReader exclusionReader = new ExclusionReader(csvFactory);
         DataReader dataReader = new DataReader(csvFactory, exclusionReader);
-        List<SecretSanta> secretSantaList = dataReader.parseDataFileWithExclusionFile();
+        List<SecretSanta> secretSantaList = dataReader
+                .parseDataFileWithExclusionFile(true);
 
         // ===== test call =====
         final Map<String, String> attendeeToResultMap = this
