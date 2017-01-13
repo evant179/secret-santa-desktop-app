@@ -1,46 +1,70 @@
 package com.data;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.data.CsvFactory.FILETYPE;
 import com.generator.SecretSanta;
-import com.gui.Constants;
-import com.gui.SecretSantaDisplayType2;
+import com.gui.SecretSantaDisplayType;
 import com.opencsv.CSVReader;
 
+/**
+ * Class to read data from the data file
+ * 
+ * TODO unit test and refactor this class
+ */
 public class DataReader
 {
     private static final Logger logger = LoggerFactory.getLogger(DataReader.class);
 
+    private final CsvFactory csvFactory;
+    private final ExclusionReader exclusionReader;
+
+    /**
+     * Constructor
+     * 
+     * @param csvFactory
+     * @param exclusionReader
+     */
+    public DataReader(CsvFactory csvFactory, ExclusionReader exclusionReader)
+    {
+        this.csvFactory = csvFactory;
+        this.exclusionReader = exclusionReader;
+    }
+
     /**
      * Parse and merge data file and exclusion file, returning a list of
-     * SecretSanta
+     * SecretSanta types
      * 
-     * @param dataFilePath
-     * @param exclusionFilePath
+     * @param isHistoryIncluded
+     *            If true, then include history from data file into the
+     *            SecretSanta exclusion list; otherwise, only names from
+     *            exclusion file is added to exclusion list
      * @return
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public List<SecretSanta> parseDataFileWithExclusionFile(String dataFilePath,
-            String exclusionFilePath) throws FileNotFoundException, IOException
+    public List<SecretSanta> parseDataFileWithExclusionFile(boolean isHistoryIncluded)
+            throws FileNotFoundException, IOException
     {
+        CSVReader dataCsvReader = this.csvFactory.createCsvReader(FILETYPE.DATA);
+
         // parsing into tokens: http://howtodoinjava.com/2013/05/27/parse-csv-files-in-java/
         final List<SecretSanta> secretSantaList = new ArrayList<SecretSanta>();
-        ExclusionReader exclusionReader = new ExclusionReader(exclusionFilePath);
         String[] tokens = null;
 
-        // Create the file reader
-        CSVReader reader = new CSVReader(new FileReader(dataFilePath));
+        // get exclusion data
+        Map<String, List<String>> nameToExclusionNameListMap = this.exclusionReader
+                .getExclusionListDataFromFile();
 
         // Read the file line by line
-        while ((tokens = reader.readNext()) != null)
+        while ((tokens = dataCsvReader.readNext()) != null)
         {
             String name = null;
             final List<String> excludedNames = new ArrayList<String>();
@@ -61,8 +85,12 @@ public class DataReader
                     {
                         // Assign the first data entry of the row as the name
                         name = currentData;
+                        if (!isHistoryIncluded)
+                        {
+                            break; // do not read in rest of row from data file
+                        }
                     }
-                    else
+                    else if (isHistoryIncluded)
                     {
                         // Add the remaining data entries as excludedNames
                         excludedNames.add(currentData);
@@ -71,8 +99,8 @@ public class DataReader
 
                 if (name != null)
                 {
-                    List<String> exclusionListFromFile = exclusionReader
-                            .getNameToExclusionListMap().get(name);
+                    List<String> exclusionListFromFile = nameToExclusionNameListMap
+                            .get(name);
                     if (null != exclusionListFromFile)
                     {
                         for (String excludedNameFromFile : exclusionListFromFile)
@@ -95,90 +123,7 @@ public class DataReader
             }
         }
 
-        reader.close();
-
-        return secretSantaList;
-    }
-
-    /**
-     * Parse and merge data file and exclusion file, returning a list of
-     * SecretSanta
-     * 
-     * TODO refactor this!
-     * 
-     * @param dataFilePath
-     * @param exclusionFilePath
-     * @return
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
-    public List<SecretSanta> parseDataFileWithExclusionFileForExclusionDialog(
-            String dataFilePath, String exclusionFilePath)
-            throws FileNotFoundException, IOException
-    {
-        // parsing into tokens: http://howtodoinjava.com/2013/05/27/parse-csv-files-in-java/
-        final List<SecretSanta> secretSantaList = new ArrayList<SecretSanta>();
-        ExclusionReader exclusionReader = new ExclusionReader(exclusionFilePath);
-        String[] tokens = null;
-
-        // Create the file reader
-        CSVReader reader = new CSVReader(new FileReader(dataFilePath));
-
-        // Read the file line by line
-        while ((tokens = reader.readNext()) != null)
-        {
-            String name = null;
-            final List<String> excludedNames = new ArrayList<String>();
-
-            // Check if tokens are not empty
-            // and doesn't start with '#' (we're skipping these lines)
-            if ((tokens.length > 0) && (!((tokens[0]).charAt(0) == '#')))
-            {
-                for (String token : tokens)
-                {
-                    String currentData = token.toUpperCase();
-
-                    if ((currentData == null) || (currentData.isEmpty()))
-                    {
-                        // skip
-                    }
-                    else if (name == null)
-                    {
-                        // Assign the first data entry of the row as the name
-                        name = currentData;
-                        break;
-                    }
-                    //                    else
-                    //                    {
-                    //                        // Add the remaining data entries as excludedNames
-                    //                        excludedNames.add(currentData);
-                    //                    }
-                }
-
-                if (name != null)
-                {
-                    List<String> exclusionListFromFile = exclusionReader
-                            .getNameToExclusionListMap().get(name);
-                    if (null != exclusionListFromFile)
-                    {
-                        for (String excludedNameFromFile : exclusionListFromFile)
-                        {
-                            if (!excludedNames.contains(excludedNameFromFile))
-                            {
-                                excludedNames.add(excludedNameFromFile);
-                            }
-                        }
-                    }
-                }
-
-                // Create SecretSanta for each row entry
-                SecretSanta secretSanta = new SecretSanta(name, excludedNames);
-                // Add SecretSanta to list to be returned
-                secretSantaList.add(secretSanta);
-            }
-        }
-
-        reader.close();
+        dataCsvReader.close();
 
         return secretSantaList;
     }
@@ -193,19 +138,20 @@ public class DataReader
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public List<SecretSantaDisplayType2> parseRawDataFileWithExclusions(
-            String dataFilePath, String exclusionFilePath)
+    public List<SecretSantaDisplayType> parseRawDataFileWithExclusions()
             throws FileNotFoundException, IOException
     {
-        final List<SecretSantaDisplayType2> secretSantaDisplayList = new ArrayList<SecretSantaDisplayType2>();
-        ExclusionReader exclusionReader = new ExclusionReader(exclusionFilePath);
+        CSVReader dataCsvReader = this.csvFactory.createCsvReader(FILETYPE.DATA);
+
+        final List<SecretSantaDisplayType> secretSantaDisplayList = new ArrayList<SecretSantaDisplayType>();
         String[] tokens = null;
 
-        // Create the file reader
-        CSVReader reader = new CSVReader(new FileReader(dataFilePath));
+        // get exclusion data
+        Map<String, List<String>> nameToExclusionNameListMap = this.exclusionReader
+                .getExclusionListDataFromFile();
 
         // Read the file line by line
-        while ((tokens = reader.readNext()) != null)
+        while ((tokens = dataCsvReader.readNext()) != null)
         {
             String name = null;
             final List<String> previousSecretSantas = new ArrayList<String>();
@@ -236,8 +182,8 @@ public class DataReader
 
                 if (name != null)
                 {
-                    List<String> exclusionListFromFile = exclusionReader
-                            .getNameToExclusionListMap().get(name);
+                    List<String> exclusionListFromFile = nameToExclusionNameListMap
+                            .get(name);
                     if (null != exclusionListFromFile)
                     {
                         for (String excludedNameFromFile : exclusionListFromFile)
@@ -251,14 +197,14 @@ public class DataReader
                 }
 
                 // Create SecretSanta for each row entry
-                SecretSantaDisplayType2 secretSantaDisplayType = new SecretSantaDisplayType2(
+                SecretSantaDisplayType secretSantaDisplayType = new SecretSantaDisplayType(
                         name, previousSecretSantas, excludedNames);
                 // Add SecretSanta to list to be returned
                 secretSantaDisplayList.add(secretSantaDisplayType);
             }
         }
 
-        reader.close();
+        dataCsvReader.close();
 
         return secretSantaDisplayList;
     }
@@ -271,16 +217,14 @@ public class DataReader
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public List<String> parseYearData(String dataFilePath)
-            throws FileNotFoundException, IOException
+    public List<String> parseYearData() throws FileNotFoundException, IOException
     {
+        CSVReader dataCsvReader = this.csvFactory.createCsvReader(FILETYPE.DATA);
+
         final List<String> yearList = new ArrayList<String>();
 
-        // Create the file reader
-        CSVReader reader = new CSVReader(new FileReader(dataFilePath));
-
         // Read only the first line of the file, expecting to retrieve year data
-        String[] tokens = reader.readNext();
+        String[] tokens = dataCsvReader.readNext();
 
         for (String token : tokens)
         {
@@ -292,18 +236,16 @@ public class DataReader
             }
         }
 
-        reader.close();
+        dataCsvReader.close();
 
         return yearList;
     }
 
-    public boolean isDuplicateName(String dataFilePath, String name)
-            throws FileNotFoundException, IOException
+    public boolean isDuplicateName(String name) throws FileNotFoundException, IOException
     {
         boolean isDuplicate = false;
         // TODO make own method later than using the below one
-        List<SecretSanta> dataList = this.parseDataFileWithExclusionFile(dataFilePath,
-                Constants.EXCLUSION_FILE_PATH);
+        List<SecretSanta> dataList = this.parseDataFileWithExclusionFile(true);
         for (SecretSanta entry : dataList)
         {
             if (entry.getName().equals(name))
@@ -324,16 +266,14 @@ public class DataReader
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public int getNumberYearsCompleted(String dataFilePath)
-            throws FileNotFoundException, IOException
+    public int getNumberYearsCompleted() throws FileNotFoundException, IOException
     {
+        CSVReader dataCsvReader = this.csvFactory.createCsvReader(FILETYPE.DATA);
+
         int yearCount = 0;
 
-        // Create the file reader
-        CSVReader reader = new CSVReader(new FileReader(dataFilePath));
-
         // Read only the first line of the file, expecting to retrieve year data
-        String[] tokens = reader.readNext();
+        String[] tokens = dataCsvReader.readNext();
 
         for (String token : tokens)
         {
@@ -343,7 +283,7 @@ public class DataReader
             }
         }
 
-        reader.close();
+        dataCsvReader.close();
 
         logger.info("Number of years completed: [{}]", yearCount);
         return yearCount;

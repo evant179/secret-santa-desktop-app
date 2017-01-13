@@ -2,7 +2,10 @@ package com.gui;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +26,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 /**
  * Table for viewing secret santa data
  */
-public class MainTableView extends TableView<SecretSantaDisplayType2>
+public class MainTableView extends TableView<SecretSantaDisplayType>
 {
     private static final Logger logger = LoggerFactory.getLogger(MainTableView.class);
 
-    private DataReader dataReader = new DataReader();
+    private final DataReader dataReader;
     /**
      * Runnable to cancel combobox editting mode when toggling override mode
      */
@@ -39,14 +42,18 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
     /**
      * Constructor
      * 
+     * @param dataReader
      * @param secretSantaDisplayList
      *            Secret santas to display
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public MainTableView(List<SecretSantaDisplayType2> secretSantaDisplayList)
+    public MainTableView(DataReader dataReader,
+            List<SecretSantaDisplayType> secretSantaDisplayList)
             throws FileNotFoundException, IOException
     {
+        this.dataReader = dataReader;
+
         this.setEditable(false);
 
         this.setMinHeight(750);
@@ -66,7 +73,7 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
      * @throws IOException
      * @throws FileNotFoundException
      */
-    public void refreshTableData(List<SecretSantaDisplayType2> secretSantaDisplayList)
+    public void refreshTableData(List<SecretSantaDisplayType> secretSantaDisplayList)
             throws FileNotFoundException, IOException
     {
         logger.info("Refresh table");
@@ -98,7 +105,7 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
 
         logger.info("Reset table");
         // reset selected values to null for current year
-        for (SecretSantaDisplayType2 displayType : this.getItems())
+        for (SecretSantaDisplayType displayType : this.getItems())
         {
             displayType.getSecretSantaList().get(this.currentYearIndex).setValue(null);
         }
@@ -111,7 +118,7 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
 
         // THIS FIXES A BUG
         @SuppressWarnings("unchecked")
-        TableColumn<SecretSantaDisplayType2, String> lastColumn = (TableColumn<SecretSantaDisplayType2, String>) // cast
+        TableColumn<SecretSantaDisplayType, String> lastColumn = (TableColumn<SecretSantaDisplayType, String>) // cast
         this.getColumns().get(getColumns().size() - 1);
         lastColumn.setCellValueFactory(null);
 
@@ -120,7 +127,7 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
         //        this.debugCurrentYearSelection("after reset button");
     }
 
-    public void addAttendee(SecretSantaDisplayType2 attendee)
+    public void addAttendee(SecretSantaDisplayType attendee)
     {
         // read from data file, parsing for specific name
         this.getItems().add(attendee);
@@ -137,28 +144,57 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
         this.resetCurrentYearColumnSelections();
     }
 
+    /**
+     * Get map of [attendee name] to corresponding [overridden result name], if
+     * available
+     * 
+     * @return Map of [attendee name] to [overridden result name]
+     */
+    public Map<String, String> getAttendeeNameToOverridenResultNameMap()
+    {
+        // note: for each display type, if a name exists at currentYearIndex,
+        // then assume that's the overridden name
+        Map<String, String> nameToOverriddenNameMap = this.getItems().stream().filter(
+                type -> null != type.getSecretSantaList().get(currentYearIndex).getValue()
+                        && !type.getSecretSantaList().get(currentYearIndex).getValue()
+                                .isEmpty()) // filter for only selected overrides
+                .collect(Collectors.toMap(SecretSantaDisplayType::getName, type -> type
+                        .getSecretSantaList().get(currentYearIndex).getValue()));
+        // if no overridden result names found, then map returned is empty
+
+        return nameToOverriddenNameMap;
+    }
+
+    /**
+     * Update table display with generated results
+     * 
+     * @param attendeeToResultMap
+     *            Generated attendee name to result name map
+     */
     public void updateSecretSantasWithResults(
-            ObservableList<SecretSantaDisplayType> oldDisplayTypeList)
+            final Map<String, String> attendeeToResultMap)
     {
         logger.info("update table with results");
-        for (SecretSantaDisplayType oldType : oldDisplayTypeList)
+        attendeeToResultMap.forEach((attendeeName, resultName) ->
         {
-            for (SecretSantaDisplayType2 row : this.getItems())
+            // get matching row based on attendee name
+            SecretSantaDisplayType attendeeRow = this.getItems().stream()
+                    .filter(row -> attendeeName.equals(row.getName())).findAny()
+                    .orElse(null);
+            if (attendeeRow != null)
             {
-                if (oldType.getName().equals(row.getName()))
-                {
-                    row.getSecretSantaList().get(this.currentYearIndex)
-                            .setValue(oldType.getSecretSanta());
-                    logger.info("after update result: [{}] : [{}]", row.getName(), row
-                            .getSecretSantaList().get(this.currentYearIndex).getValue());
-                    break;
-                }
+                // update row with corresponding result name
+                attendeeRow.getSecretSantaList().get(this.currentYearIndex)
+                        .setValue(resultName);
+                logger.info("after update result: attendee[{}] : result[{}]",
+                        attendeeRow.getName(), attendeeRow.getSecretSantaList()
+                                .get(this.currentYearIndex).getValue());
             }
-        }
+        });
 
         @SuppressWarnings("unchecked")
-        TableColumn<SecretSantaDisplayType2, String> lastColumn = (TableColumn<SecretSantaDisplayType2, String>) // cast
-        this.getColumns().get(getColumns().size() - 1);
+        TableColumn<SecretSantaDisplayType, String> lastColumn = (TableColumn<SecretSantaDisplayType, String>) this
+                .getColumns().get(getColumns().size() - 1);
         lastColumn.setCellValueFactory(cellData -> cellData.getValue()
                 .getSecretSantaList().get(this.currentYearIndex));
 
@@ -166,7 +202,7 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
         this.refresh();
     }
 
-    private void constructTable(List<SecretSantaDisplayType2> secretSantaDisplayList)
+    private void constructTable(List<SecretSantaDisplayType> secretSantaDisplayList)
             throws FileNotFoundException, IOException
     {
         this.constructColumns();
@@ -175,22 +211,22 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
 
     private void constructColumns() throws FileNotFoundException, IOException
     {
-        List<String> yearList = dataReader.parseYearData(Constants.DATA_FILE_PATH);
+        List<String> yearList = this.dataReader.parseYearData();
 
         // ------------ set up name column ------------
-        TableColumn<SecretSantaDisplayType2, String> nameColumn = new TableColumn<SecretSantaDisplayType2, String>(
+        TableColumn<SecretSantaDisplayType, String> nameColumn = new TableColumn<SecretSantaDisplayType, String>(
                 "Name");
         nameColumn.setCellValueFactory(
-                new PropertyValueFactory<SecretSantaDisplayType2, String>("name"));
+                new PropertyValueFactory<SecretSantaDisplayType, String>("name"));
         this.getColumns().add(nameColumn);
 
         // ------------ set up previous years columns ------------
-        TableColumn<SecretSantaDisplayType2, String> prevousYearColumns = new TableColumn<SecretSantaDisplayType2, String>(
+        TableColumn<SecretSantaDisplayType, String> prevousYearColumns = new TableColumn<SecretSantaDisplayType, String>(
                 "Previous Years");
         for (int i = 0; i < yearList.size(); i++)
         {
             final int currentIteration = i; // need to make final copy to pass into lambda
-            TableColumn<SecretSantaDisplayType2, String> yearColumn = new TableColumn<SecretSantaDisplayType2, String>(
+            TableColumn<SecretSantaDisplayType, String> yearColumn = new TableColumn<SecretSantaDisplayType, String>(
                     yearList.get(currentIteration));
             yearColumn.setCellValueFactory(cellData -> cellData.getValue()
                     .getSecretSantaList().get(currentIteration));
@@ -202,7 +238,7 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
         int currentYear = Integer.valueOf(yearList.get(yearList.size() - 1));
         currentYear++; // increment to current year
         logger.info("Current year [{}]", currentYear);
-        TableColumn<SecretSantaDisplayType2, String> currentYearColumn = new TableColumn<SecretSantaDisplayType2, String>(
+        TableColumn<SecretSantaDisplayType, String> currentYearColumn = new TableColumn<SecretSantaDisplayType, String>(
                 String.format(CURRENT_YEAR_COLUMN_NAME, currentYear));
 
         // when selected, enable dropdown
@@ -213,13 +249,13 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
 
         // when name from dropdown is selected, update row data
         currentYearColumn.setOnEditCommit(
-                new EventHandler<TableColumn.CellEditEvent<SecretSantaDisplayType2, String>>()
+                new EventHandler<TableColumn.CellEditEvent<SecretSantaDisplayType, String>>()
                 {
                     @Override
                     public void handle(
-                            TableColumn.CellEditEvent<SecretSantaDisplayType2, String> t)
+                            TableColumn.CellEditEvent<SecretSantaDisplayType, String> t)
                     {
-                        SecretSantaDisplayType2 currentSecretSanta = ((SecretSantaDisplayType2) t
+                        SecretSantaDisplayType currentSecretSanta = ((SecretSantaDisplayType) t
                                 .getTableView().getItems()
                                 .get(t.getTablePosition().getRow()));
                         logger.info("setOnEditCommit, currentSecretSanta: {} : {}",
@@ -245,16 +281,16 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
      * @throws FileNotFoundException
      * @throws IOException
      */
-    private void constructRows(List<SecretSantaDisplayType2> secretSantaDisplayList)
+    private void constructRows(List<SecretSantaDisplayType> secretSantaDisplayList)
             throws FileNotFoundException, IOException
     {
         // add empty current year data to display list
-        for (SecretSantaDisplayType2 displayType : secretSantaDisplayList)
+        for (SecretSantaDisplayType displayType : secretSantaDisplayList)
         {
             displayType.getSecretSantaList().add(new SimpleStringProperty());
         }
 
-        final ObservableList<SecretSantaDisplayType2> observableList = FXCollections
+        final ObservableList<SecretSantaDisplayType> observableList = FXCollections
                 .observableArrayList(secretSantaDisplayList);
         this.setItems(observableList);
 
@@ -266,7 +302,7 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
     @SuppressWarnings("unused")
     private void debugCurrentYearSelection(String message)
     {
-        for (SecretSantaDisplayType2 displayType : getItems())
+        for (SecretSantaDisplayType displayType : getItems())
         {
             logger.info("{} - name[{}], current year selection[{}]", message,
                     displayType.getName(),
@@ -274,7 +310,7 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
         }
     }
 
-    private class ComboBoxCell extends TableCell<SecretSantaDisplayType2, String>
+    private class ComboBoxCell extends TableCell<SecretSantaDisplayType, String>
     {
         private ComboBox<String> comboBox;
 
@@ -294,7 +330,7 @@ public class MainTableView extends TableView<SecretSantaDisplayType2>
                 List<String> attendeeList = Utility.convertList(getTableView().getItems(),
                         s -> s.getName());
                 logger.info("create dropdown - initial attendees [{}]", attendeeList);
-                SecretSantaDisplayType2 currentRow = getTableView().getItems()
+                SecretSantaDisplayType currentRow = getTableView().getItems()
                         .get(getIndex());
                 logger.info("combobox startEdit for: {}", currentRow.getName());
                 attendeeList.remove(currentRow.getName());

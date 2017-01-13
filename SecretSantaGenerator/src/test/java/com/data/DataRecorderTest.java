@@ -1,33 +1,33 @@
 package com.data;
 
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.gui.Constants;
-import com.gui.SecretSantaDisplayType;
-import com.opencsv.CSVWriter;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
-
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.FileReader;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.data.CsvFactory.FILETYPE;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+
+/**
+ * Unit tests for {@link DataRecorder}
+ */
 public class DataRecorderTest
 {
     private static final String TEST_DATA1_FILE_PATH = "/test_data1.csv";
@@ -37,25 +37,66 @@ public class DataRecorderTest
     private static final String TEST_OUTPUT_FILE_PATH = "./test_output.csv";
     private static final Logger logger = LoggerFactory.getLogger(DataRecorderTest.class);
 
-    @Test
-    public void testSave1() throws IOException
+    /**
+     * Object to be tested
+     */
+    private DataRecorder dataRecorder;
+
+    /**
+     * Set up called before each test case method
+     */
+    @Before
+    public void setUp()
     {
+    }
+
+    /**
+     * Reads in test data for dataCsvReader
+     * 
+     * Mocks output writer (and everything else)
+     * 
+     * TODO convert a lot of common code to a method for easier testing
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void test_saveGenerationResults() throws Exception
+    {
+        // ===== set up data =====
         File dataFile = new File(getClass().getResource(TEST_DATA2_FILE_PATH).getFile());
-        DataRecorder dataRecorder = new DataRecorder(dataFile.getPath(), TEST_EXCLUSIONS1_FILE_PATH);
-        List<SecretSantaDisplayType> testList = createTestSecretSantaDisplayList();
+        CSVReader dataCsvReader = new CSVReader(new FileReader(dataFile.getPath()));
 
-        CSVWriter mockWriter = mock(CSVWriter.class);
+        // mock objects used for saveGenerationResults
+        CSVWriter mock_outputCsvWriter = mock(CSVWriter.class);
+        CsvFactory mock_csvFactory = mock(CsvFactory.class);
 
-        ArgumentCaptor<String[]> writeNextCaptor = ArgumentCaptor
-                .forClass(String[].class);
+        // return real CSVReader instance
+        when(mock_csvFactory.createCsvReader(eq(FILETYPE.DATA)))
+                .thenReturn(dataCsvReader);
+        // return mock CSVWriter (used for verification)
+        when(mock_csvFactory.createCsvWriter(eq(FILETYPE.OUTPUT)))
+                .thenReturn(mock_outputCsvWriter);
 
-        dataRecorder.save(testList, dataFile.getPath(), mockWriter);
+        // mock objects NOT used for saveGenerationResults (no need for verification)
+        DataReader mock_dataReader = mock(DataReader.class);
 
-        verify(mockWriter, times(1)).close();
+        this.dataRecorder = new DataRecorder(mock_csvFactory, mock_dataReader);
+
+        // create test output
+        Map<String, String> testMap = createTestAttendeeToResultMap();
+
+        // ===== test call =====
+        dataRecorder.saveGenerationResults(testMap);
+
+        // ===== verification =====
+        verify(mock_outputCsvWriter, times(1)).close();
 
         // verify writeNext was called 11 times: 1 for the header and 10 for existing names.
         // capture the arguments.
-        verify(mockWriter, times(11)).writeNext(writeNextCaptor.capture());
+        ArgumentCaptor<String[]> writeNextCaptor = ArgumentCaptor
+                .forClass(String[].class);
+        verify(mock_outputCsvWriter, times(11))
+                .writeNext(writeNextCaptor.capture());
 
         // verify each captured argument
         final String TESTNAME1 = "testName1";
@@ -110,25 +151,44 @@ public class DataRecorderTest
     }
 
     @Test
-    public void testSave2() throws IOException
+    public void test_saveGenerationResults_withNewcomers() throws Exception
     {
+        // ===== set up data =====
         File dataFile = new File(getClass().getResource(TEST_DATA2_FILE_PATH).getFile());
-        DataRecorder dataRecorder = new DataRecorder(dataFile.getPath(), TEST_EXCLUSIONS1_FILE_PATH);
-        List<SecretSantaDisplayType> testList = createTestSecretSantaDisplayListWithNewcomers();
+        CSVReader dataCsvReader = new CSVReader(new FileReader(dataFile.getPath()));
 
-        CSVWriter mockWriter = mock(CSVWriter.class);
+        // mock objects used for saveGenerationResults
+        CSVWriter mock_outputCsvWriter = mock(CSVWriter.class);
+        CsvFactory mock_csvFactory = mock(CsvFactory.class);
 
-        ArgumentCaptor<String[]> writeNextCaptor = ArgumentCaptor
-                .forClass(String[].class);
+        // return real CSVReader instance
+        when(mock_csvFactory.createCsvReader(eq(FILETYPE.DATA)))
+                .thenReturn(dataCsvReader);
+        // return mock CSVWriter (used for verification)
+        when(mock_csvFactory.createCsvWriter(eq(FILETYPE.OUTPUT)))
+                .thenReturn(mock_outputCsvWriter);
 
-        dataRecorder.save(testList, dataFile.getPath(), mockWriter);
+        // mock objects NOT used for saveGenerationResults (no need for verification)
+        DataReader mock_dataReader = mock(DataReader.class);
 
-        verify(mockWriter, times(1)).close();
+        this.dataRecorder = new DataRecorder(mock_csvFactory, mock_dataReader);
+
+        // create test output
+        Map<String, String> testMap = createTestAttendeeToResultMapWithNewcomers();
+
+        // ===== test call =====
+        dataRecorder.saveGenerationResults(testMap);
+
+        // ===== verification =====
+        verify(mock_outputCsvWriter, times(1)).close();
 
         // verify writeNext was called 13 times: 1 for the header, 10 for existing names,
         // and 2 for newcomer names.
         // capture the arguments.
-        verify(mockWriter, times(13)).writeNext(writeNextCaptor.capture());
+        ArgumentCaptor<String[]> writeNextCaptor = ArgumentCaptor
+                .forClass(String[].class);
+        verify(mock_outputCsvWriter, times(13))
+                .writeNext(writeNextCaptor.capture());
 
         // verify each captured argument
         final String TESTNAME1 = "testName1";
@@ -210,24 +270,26 @@ public class DataRecorderTest
     //        }
     //    }
 
-    private List<SecretSantaDisplayType> createTestSecretSantaDisplayList()
+    // TODO create a general method to create results that make sense.
+    // current they don't because the attendees and results aren't matching
+    private Map<String, String> createTestAttendeeToResultMap()
     {
-        List<SecretSantaDisplayType> list = new ArrayList<SecretSantaDisplayType>();
-        list.add(new SecretSantaDisplayType("testName1", "testName8"));
-        list.add(new SecretSantaDisplayType("testName7", "testName9"));
-        list.add(new SecretSantaDisplayType("testName9", "testName10"));
+        Map<String, String> attendeeToResultMap = new HashMap<>();
+        attendeeToResultMap.put("testName1", "testName8");
+        attendeeToResultMap.put("testName7", "testName9");
+        attendeeToResultMap.put("testName9", "testName10");
 
-        return list;
+        return attendeeToResultMap;
     }
 
-    private List<SecretSantaDisplayType> createTestSecretSantaDisplayListWithNewcomers()
+    private Map<String, String> createTestAttendeeToResultMapWithNewcomers()
     {
-        List<SecretSantaDisplayType> list = new ArrayList<SecretSantaDisplayType>();
-        list.add(new SecretSantaDisplayType("testName1", "testName8"));
-        list.add(new SecretSantaDisplayType("testName10", "testName9"));
-        list.add(new SecretSantaDisplayType("newcomer1", "testName1"));
-        list.add(new SecretSantaDisplayType("newcomer2", "newcomer1"));
+        Map<String, String> attendeeToResultMap = new HashMap<>();
+        attendeeToResultMap.put("testName1", "testName8");
+        attendeeToResultMap.put("testName10", "testName9");
+        attendeeToResultMap.put("newcomer1", "testName1");
+        attendeeToResultMap.put("newcomer2", "newcomer1");
 
-        return list;
+        return attendeeToResultMap;
     }
 }

@@ -1,27 +1,48 @@
 package com.data;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.data.CsvFactory.FILETYPE;
 import com.opencsv.CSVReader;
 
+/**
+ * Class to read data from the exclusion file
+ */
 public class ExclusionReader
 {
+    private final CsvFactory csvFactory;
 
-    private final Map<String, List<String>> nameToExclusionListMap = new HashMap<String, List<String>>();
-
-    public ExclusionReader(String filePath) throws IOException
+    /**
+     * Constructor
+     * 
+     * @param csvFactory
+     */
+    public ExclusionReader(CsvFactory csvFactory)
     {
-        @SuppressWarnings("resource")
-        CSVReader reader = new CSVReader(new FileReader(filePath));
+        this.csvFactory = csvFactory;
+    }
+
+    /**
+     * Retrieve data from the exclusion file
+     * 
+     * @return Map with [attendee name as key] and [list of exclusion names as
+     *         value]
+     * @throws IOException
+     */
+    public Map<String, List<String>> getExclusionListDataFromFile() throws IOException
+    {
+        CSVReader exclusionCsvReader = this.csvFactory
+                .createCsvReader(FILETYPE.EXCLUSION);
+        Map<String, List<String>> nameToExclusionNameListMap = new HashMap<String, List<String>>();
+
         String[] tokens = null;
 
         // read each line
-        while ((tokens = reader.readNext()) != null)
+        while ((tokens = exclusionCsvReader.readNext()) != null)
         {
             String name = null;
             final List<String> excludedNames = new ArrayList<String>();
@@ -49,15 +70,13 @@ public class ExclusionReader
                 }
 
                 // TODO add check here if name/key already exists then show
-                // window
-                // wit error that a duplicate exists
-                this.nameToExclusionListMap.put(name, excludedNames);
+                // window with error that a duplicate exists
+                nameToExclusionNameListMap.put(name, excludedNames);
             }
         }
-    }
 
-    public Map<String, List<String>> getNameToExclusionListMap()
-    {
-        return nameToExclusionListMap;
+        exclusionCsvReader.close();
+
+        return nameToExclusionNameListMap;
     }
 }

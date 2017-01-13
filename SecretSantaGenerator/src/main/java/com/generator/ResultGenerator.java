@@ -10,45 +10,55 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gui.SecretSantaDisplayType;
-
 /**
- * Generator for secret santas
+ * Result generator for secret santa attendees
  */
-public class SecretSantaGenerator
+public class ResultGenerator
 {
     private static final Logger logger = LoggerFactory
-            .getLogger(SecretSantaGenerator.class);
+            .getLogger(ResultGenerator.class);
 
-    private final List<SecretSanta> secretSantas;
     private final Map<String, Boolean> takenNames = new HashMap<String, Boolean>();
     private final Random random = new Random();
 
     public final static String IMPOSSIBLE_SCENARIO_ERROR_MESSAGE = "Secret santa list generated has encountered an impossible scenario. "
             + "Attempt Generate again.";
 
-    public SecretSantaGenerator(List<SecretSanta> secretSantas)
+    /**
+     * Generate a result for each attendee
+     * 
+     * @param secretSantaList
+     *            Secret santa list to generate reults for. Each entry is
+     *            considered an attendee. Will not be modified
+     * @return Map with [attendee name as the key] and [corresponding result
+     *         name as the value]
+     * @throws GenerateException
+     *             Thrown during an impossible generation scenario
+     */
+    public Map<String, String> generateSecretSantas(
+            final List<SecretSanta> secretSantaList) throws GenerateException
     {
-        this.secretSantas = secretSantas;
+        // Sort the secret santas from most exclusions to least exclusions. This will lessen
+        // the chance of running into an impossible scenario (where a person has no available
+        // name to assign to)
+        Collections.sort(secretSantaList);
 
-    }
-
-    public List<SecretSantaDisplayType> generateSecretSantas() throws GenerateException
-    {
-        final Map<String, String> secretSantaMap = new HashMap<String, String>();
-        final List<SecretSantaDisplayType> displayList = new ArrayList<SecretSantaDisplayType>();
+        // create unmodifiable list to ensure no accidental edits
+        List<SecretSanta> unmodifiableSecretSantaList = Collections
+                .unmodifiableList(secretSantaList);
+        final Map<String, String> attendeeToResultMap = new HashMap<String, String>();
 
         // Create "checkbox" of secret santa.
         // Marked false as default--not taken yet;
         // Marked true when taken;
-        for (SecretSanta secretSanta : this.secretSantas)
+        for (SecretSanta secretSanta : unmodifiableSecretSantaList)
         {
             // TODO have a check here for attendence
             this.takenNames.put(secretSanta.getName(), false);
         }
 
         // mark rigged names
-        for (SecretSanta secretSanta : this.secretSantas)
+        for (SecretSanta secretSanta : unmodifiableSecretSantaList)
         {
             if (secretSanta.getOverridenSelection() != null
                     && !secretSanta.getOverridenSelection().isEmpty())
@@ -59,12 +69,8 @@ public class SecretSantaGenerator
             }
         }
 
-        // Sort the secret santas from most exclusions to least exclusions. This will lessen
-        // the chance of running into an impossible scenario (where a person has no available
-        // name to assign to)
-        Collections.sort(this.secretSantas);
-
-        for (SecretSanta secretSanta : this.secretSantas)
+        // for each attendee, generate a result
+        for (SecretSanta secretSanta : unmodifiableSecretSantaList)
         {
             if (secretSanta.getOverridenSelection() != null
                     && !secretSanta.getOverridenSelection().isEmpty())
@@ -73,31 +79,24 @@ public class SecretSantaGenerator
                 logger.info("successfully override for [{}]: [{}]", secretSanta.getName(),
                         secretSanta.getOverridenSelection());
                 // Assign name to secret santa map
-                secretSantaMap.put(secretSanta.getName(), riggedName);
+                attendeeToResultMap.put(secretSanta.getName(), riggedName);
             }
             else
             {
-                String assignedName = this.assignSecretSanta(secretSanta);
+                String assignedName = this.assignSecretSanta(secretSanta,
+                        unmodifiableSecretSantaList);
 
                 // Assign name to secret santa map
-                secretSantaMap.put(secretSanta.getName(), assignedName);
+                logger.info("///// attendee[{}] ///// result[{}] /////",
+                        secretSanta.getName(), assignedName);
+                attendeeToResultMap.put(secretSanta.getName(), assignedName);
 
                 // Mark the map of taken names as true (taken)
                 this.takenNames.replace(assignedName, true);
             }
         }
 
-        // Convert map to a list displayable on the generated table
-        for (Map.Entry<String, String> entry : secretSantaMap.entrySet())
-        {
-            String name = entry.getKey();
-            String secretSanta = entry.getValue();
-            logger.info("///// [{}] ///// [{}] /////", name, secretSanta);
-            displayList.add(
-                    new SecretSantaDisplayType(name.toString(), secretSanta.toString()));
-        }
-
-        return displayList;
+        return attendeeToResultMap;
     }
 
     /**
@@ -107,19 +106,20 @@ public class SecretSantaGenerator
      * @param secretSanta
      * @return
      */
-    private String assignSecretSanta(SecretSanta secretSanta) throws GenerateException
+    private String assignSecretSanta(SecretSanta secretSanta,
+            final List<SecretSanta> secretSantaList) throws GenerateException
     {
         logger.info("Looking for a secret santa for: [{}], exclusion list size: [{}]",
                 secretSanta.getName(), secretSanta.getExcludedNames().size());
 
         // copy the secret santa list's names
         List<String> uniqueNameList = new ArrayList<String>();
-        for (SecretSanta s : this.secretSantas)
+        for (SecretSanta s : secretSantaList)
         {
             uniqueNameList.add(s.getName());
         }
 
-        // remove people from exlusion list
+        // remove people from exclusion list
         for (String excludedName : secretSanta.getExcludedNames())
         {
             if (secretSanta.getExcludedNames().contains(excludedName))

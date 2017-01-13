@@ -1,21 +1,23 @@
 package com.data;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.equalTo;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.hamcrest.collection.IsMapContaining;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Unit tests for {@link ExclusionReader}
+ */
 public class ExclusionReaderTest
 {
     private static final String TEST_EXCLUSIONS1_FILE_PATH = "/test_exclusions1.csv";
@@ -23,29 +25,36 @@ public class ExclusionReaderTest
     private static final Logger logger = LoggerFactory
             .getLogger(ExclusionReaderTest.class);
 
-    @Test
-    public void testExclusionMap()
+    /**
+     * Object to be tested
+     */
+    private ExclusionReader exclusionReader;
+
+    /**
+     * Set up called before each test case method
+     */
+    @Before
+    public void setUp()
     {
-        File file = new File(
+    }
+
+    @Test
+    public void testExclusionMap() throws Exception
+    {
+        // ===== set up data =====
+        File exclusionsFile = new File(
                 getClass().getResource(TEST_EXCLUSIONS2_FILE_PATH).getFile());
 
-        ExclusionReader exclusionReader = null;
+        CsvFactory csvFactory = new CsvFactory(null, exclusionsFile.getPath(), null);
+        this.exclusionReader = new ExclusionReader(csvFactory);
 
-        try
-        {
-            exclusionReader = new ExclusionReader(file.getPath());
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            fail();
-        }
+        // ===== test call =====
+        Map<String, List<String>> nameToExclusionListMap = this.exclusionReader
+                .getExclusionListDataFromFile();
 
-        Map<String, List<String>> nameToExclusionListMap = exclusionReader
-                .getNameToExclusionListMap();
-
-        nameToExclusionListMap
-                .forEach((k, v) -> logger.info("name [" + k + "] ////// values " + v));
+        // ===== verification =====
+        nameToExclusionListMap.forEach((name, exclusionList) -> logger
+                .info("name [{}] ////// values [{}]", name, exclusionList));
 
         final String TESTNAME1 = "TESTNAME1";
         final String TESTNAME2 = "TESTNAME2";

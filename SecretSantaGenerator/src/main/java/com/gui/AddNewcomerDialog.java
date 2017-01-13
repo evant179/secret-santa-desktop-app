@@ -65,8 +65,8 @@ public class AddNewcomerDialog extends TextInputDialog
             logger.error("Error adding newcomer: ", e);
             this.simpleDialogCreator.showSimpleDialog(AlertType.ERROR,
                     String.format(Constants.ADD_NEWCOMER_DIALOG_ERROR, newcomerName,
-                            this.dataRecorder.getDataFilePath(),
-                            this.dataRecorder.getExclusionFilePath(), e.getMessage()));
+                            Constants.DATA_FILE_PATH, Constants.EXCLUSION_FILE_PATH,
+                            e.getMessage()));
         }
         return isSuccess;
     }
