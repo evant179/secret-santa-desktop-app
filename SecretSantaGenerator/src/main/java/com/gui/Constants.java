@@ -2,9 +2,9 @@ package com.gui;
 
 public final class Constants
 {
-    public static final String DATA_FILE_PATH = "resources/data.csv";
-    public static final String EXCLUSION_FILE_PATH = "resources/exclusions.csv";
-    public static final String OUTPUT_FILE_PATH = "resources/current_year_data.csv";
+    public static final String DATA_FILE_PATH = "/data.csv";
+    public static final String EXCLUSION_FILE_PATH = "/exclusions.csv";
+    public static final String OUTPUT_FILE_PATH = "output/current_year_data.csv";
 
     public static final String MAIN_DIALOG_REFRESH_ERROR = "Program cannot refresh data. "
             + "Close the program and restart to return to a good state. Tell Evan!\n\n%s";

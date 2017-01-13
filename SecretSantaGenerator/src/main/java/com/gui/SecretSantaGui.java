@@ -1,5 +1,6 @@
 package com.gui;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -86,8 +87,12 @@ public class SecretSantaGui extends Application
     public void start(Stage mainStage) throws Exception
     {
         // create single instance of csv factory for use by all file handlers
-        CsvFactory csvFactory = new CsvFactory(Constants.DATA_FILE_PATH,
-                Constants.EXCLUSION_FILE_PATH, Constants.OUTPUT_FILE_PATH);
+        File dataFile = new File(
+                getClass().getResource(Constants.DATA_FILE_PATH).getFile());
+        File exclusionsFile = new File(
+                getClass().getResource(Constants.EXCLUSION_FILE_PATH).getFile());
+        CsvFactory csvFactory = new CsvFactory(dataFile.getPath(),
+                exclusionsFile.getPath(), Constants.OUTPUT_FILE_PATH);
 
         // instantiate file handlers
         this.exclusionReader = new ExclusionReader(csvFactory);
