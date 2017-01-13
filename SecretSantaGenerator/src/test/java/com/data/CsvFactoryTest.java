@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import com.data.CsvFactory.FILETYPE;
 
+/**
+ * Unit tests for {@link CsvFactory}
+ */
 public class CsvFactoryTest
 {
     private static final Logger logger = LoggerFactory.getLogger(CsvFactoryTest.class);

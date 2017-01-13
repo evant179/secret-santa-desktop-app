@@ -29,16 +29,16 @@ import com.gui.Constants;
 import com.opencsv.CSVReader;
 
 /**
- * Generator for secret santas
+ * Unit tests for {@link ResultGenerator}
  */
-public class SecretSantaGeneratorTest
+public class ResultGeneratorTest
 {
     private static final String TEST_DATA1_FILE_PATH = "/test_data1.csv";
     private static final String TEST_DATA2_FILE_PATH = "/test_data2.csv";
     private static final String TEST_EXCLUSIONS1_FILE_PATH = "/test_exclusions1.csv";
     private static final String TEST_EXCLUSIONS2_FILE_PATH = "/test_exclusions2.csv";
     private static final Logger logger = LoggerFactory
-            .getLogger(SecretSantaGeneratorTest.class);
+            .getLogger(ResultGeneratorTest.class);
 
     /**
      * Object to be tested

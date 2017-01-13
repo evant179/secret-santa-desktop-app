@@ -15,6 +15,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Unit tests for {@link ExclusionReader}
+ */
 public class ExclusionReaderTest
 {
     private static final String TEST_EXCLUSIONS1_FILE_PATH = "/test_exclusions1.csv";

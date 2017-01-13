@@ -25,6 +25,9 @@ import com.data.CsvFactory.FILETYPE;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
+/**
+ * Unit tests for {@link DataRecorder}
+ */
 public class DataRecorderTest
 {
     private static final String TEST_DATA1_FILE_PATH = "/test_data1.csv";

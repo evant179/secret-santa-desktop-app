@@ -30,7 +30,7 @@ import com.opencsv.CSVReader;
 import javafx.beans.property.SimpleStringProperty;
 
 /**
- * Unit tests for {@link DataReader}}
+ * Unit tests for {@link DataReader}
  */
 public class DataReaderTest
 {
