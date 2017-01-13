@@ -1,4 +1,4 @@
-package com.data;
+package com.secretsanta.data;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -9,10 +9,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.data.CsvFactory.FILETYPE;
-import com.generator.SecretSanta;
-import com.gui.SecretSantaDisplayType;
 import com.opencsv.CSVReader;
+import com.secretsanta.data.CsvFactory.FILETYPE;
+import com.secretsanta.generator.SecretSanta;
+import com.secretsanta.gui.SecretSantaDisplayType;
 
 /**
  * Class to read data from the data file

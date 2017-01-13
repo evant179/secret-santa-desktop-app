@@ -1,4 +1,4 @@
-package com.data;
+package com.secretsanta.data;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

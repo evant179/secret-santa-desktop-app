@@ -1,11 +1,11 @@
-package com.gui;
+package com.secretsanta.gui;
 
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.generator.SecretSanta;
+import com.secretsanta.generator.SecretSanta;
 
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;

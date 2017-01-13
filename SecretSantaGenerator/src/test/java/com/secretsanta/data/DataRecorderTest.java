@@ -1,4 +1,4 @@
-package com.data;
+package com.secretsanta.data;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
@@ -21,9 +21,12 @@ import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.data.CsvFactory.FILETYPE;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
+import com.secretsanta.data.CsvFactory;
+import com.secretsanta.data.DataReader;
+import com.secretsanta.data.DataRecorder;
+import com.secretsanta.data.CsvFactory.FILETYPE;
 
 /**
  * Unit tests for {@link DataRecorder}

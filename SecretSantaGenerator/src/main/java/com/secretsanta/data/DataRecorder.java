@@ -1,4 +1,4 @@
-package com.data;
+package com.secretsanta.data;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -10,10 +10,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.data.CsvFactory.FILETYPE;
-import com.generator.SecretSanta;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
+import com.secretsanta.data.CsvFactory.FILETYPE;
+import com.secretsanta.generator.SecretSanta;
 
 /**
  * Class used for updating existing files and writing new files

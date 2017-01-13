@@ -1,8 +1,8 @@
-package com.gui;
+package com.secretsanta.gui;
 
 import java.util.List;
 
-import com.utility.Utility;
+import com.secretsanta.utility.Utility;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;

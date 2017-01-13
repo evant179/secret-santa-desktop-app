@@ -1,4 +1,4 @@
-package com.generator;
+package com.secretsanta.generator;
 
 import java.util.ArrayList;
 import java.util.Collections;

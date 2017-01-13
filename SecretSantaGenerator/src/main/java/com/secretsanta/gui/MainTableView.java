@@ -1,4 +1,4 @@
-package com.gui;
+package com.secretsanta.gui;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.data.DataReader;
-import com.utility.Utility;
+import com.secretsanta.data.DataReader;
+import com.secretsanta.utility.Utility;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;

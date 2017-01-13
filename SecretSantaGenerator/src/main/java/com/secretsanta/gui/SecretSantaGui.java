@@ -1,4 +1,4 @@
-package com.gui;
+package com.secretsanta.gui;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,13 +12,13 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.data.CsvFactory;
-import com.data.DataReader;
-import com.data.DataRecorder;
-import com.data.ExclusionReader;
-import com.generator.GenerateException;
-import com.generator.ResultGenerator;
-import com.generator.SecretSanta;
+import com.secretsanta.data.CsvFactory;
+import com.secretsanta.data.DataReader;
+import com.secretsanta.data.DataRecorder;
+import com.secretsanta.data.ExclusionReader;
+import com.secretsanta.generator.GenerateException;
+import com.secretsanta.generator.ResultGenerator;
+import com.secretsanta.generator.SecretSanta;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;

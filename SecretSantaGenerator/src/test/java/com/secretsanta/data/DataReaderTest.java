@@ -1,4 +1,4 @@
-package com.data;
+package com.secretsanta.data;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -22,10 +22,13 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.data.CsvFactory.FILETYPE;
-import com.generator.SecretSanta;
-import com.gui.SecretSantaDisplayType;
 import com.opencsv.CSVReader;
+import com.secretsanta.data.CsvFactory;
+import com.secretsanta.data.DataReader;
+import com.secretsanta.data.ExclusionReader;
+import com.secretsanta.data.CsvFactory.FILETYPE;
+import com.secretsanta.generator.SecretSanta;
+import com.secretsanta.gui.SecretSantaDisplayType;
 
 import javafx.beans.property.SimpleStringProperty;
 

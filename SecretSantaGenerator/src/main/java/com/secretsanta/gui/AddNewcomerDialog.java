@@ -1,12 +1,12 @@
-package com.gui;
+package com.secretsanta.gui;
 
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.data.DataRecorder;
-import com.utility.Utility;
+import com.secretsanta.data.DataRecorder;
+import com.secretsanta.utility.Utility;
 
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TextInputDialog;

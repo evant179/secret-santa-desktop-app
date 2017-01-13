@@ -1,4 +1,4 @@
-package com.generator;
+package com.secretsanta.generator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -22,11 +22,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.data.CsvFactory;
-import com.data.DataReader;
-import com.data.ExclusionReader;
-import com.gui.Constants;
 import com.opencsv.CSVReader;
+import com.secretsanta.data.CsvFactory;
+import com.secretsanta.data.DataReader;
+import com.secretsanta.data.ExclusionReader;
+import com.secretsanta.generator.GenerateException;
+import com.secretsanta.generator.ResultGenerator;
+import com.secretsanta.generator.SecretSanta;
+import com.secretsanta.gui.Constants;
 
 /**
  * Unit tests for {@link ResultGenerator}

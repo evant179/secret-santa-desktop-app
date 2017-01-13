@@ -1,4 +1,4 @@
-package com.generator;
+package com.secretsanta.generator;
 
 @SuppressWarnings("serial")
 public class GenerateException extends Exception

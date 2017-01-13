@@ -1,4 +1,4 @@
-package com.gui;
+package com.secretsanta.gui;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import org.controlsfx.control.ListSelectionView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.generator.SecretSanta;
+import com.secretsanta.generator.SecretSanta;
 
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;

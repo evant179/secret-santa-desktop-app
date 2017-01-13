@@ -1,4 +1,4 @@
-package com.data;
+package com.secretsanta.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.data.CsvFactory.FILETYPE;
 import com.opencsv.CSVReader;
+import com.secretsanta.data.CsvFactory.FILETYPE;
 
 /**
  * Class to read data from the exclusion file

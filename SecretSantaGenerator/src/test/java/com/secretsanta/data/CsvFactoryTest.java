@@ -1,4 +1,4 @@
-package com.data;
+package com.secretsanta.data;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -10,7 +10,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.data.CsvFactory.FILETYPE;
+import com.secretsanta.data.CsvFactory;
+import com.secretsanta.data.CsvFactory.FILETYPE;
 
 /**
  * Unit tests for {@link CsvFactory}

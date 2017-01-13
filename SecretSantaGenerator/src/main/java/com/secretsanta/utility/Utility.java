@@ -1,4 +1,4 @@
-package com.utility;
+package com.secretsanta.utility;
 
 import java.util.Arrays;
 import java.util.List;

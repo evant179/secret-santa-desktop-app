@@ -1,4 +1,4 @@
-package com.gui;
+package com.secretsanta.gui;
 
 public final class Constants
 {
