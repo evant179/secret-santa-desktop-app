@@ -1,3 +1,6 @@
 /bin/
 /output/current_year_data.csv
 /target/
+/.settings
+.classpath
+.project
