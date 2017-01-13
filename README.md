@@ -1,6 +1,29 @@
-# Secret Santa Generator#
+[TOC]
 
+# Setting up my Environment #
 
+### Java JDK ###
+
+* Download and install latest Java SE Development Kit. As of 12/18/2016, latest version found [here](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
+
+### Eclipse ###
+
+* Download and install latest Eclipse IDE. As of 12/18/2016, latest version found [here](https://eclipse.org/downloads/).
+* To keep our formatting consistent so we can easily see diffs, import formatter_profile.xml found in the [Downloads](https://bitbucket.org/evant179/secretsantagenerator/downloads). Select ET_Profile as the profile. Here's where you can import the settings:
+
+![code_formatter.png](https://bitbucket.org/repo/6bMx4M/images/326307154-code_formatter.png)
+
+### JavaFX ###
+
+* Set up JavaFX for Eclipse. Instructions found [here](https://www.eclipse.org/efxclipse/install.html).
+
+### Running the program ###
+
+* Within Eclipse, here's a screenshot of the Run Configuration. Run it as a Java Application.
+
+![eclipse_run_config.png](https://bitbucket.org/repo/6bMx4M/images/935062552-eclipse_run_config.png)
+
+# Secret Santa Generator #
 
 ### Features to add ###
 
