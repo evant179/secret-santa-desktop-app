@@ -28,7 +28,7 @@
                 <version>8.7.0</version>
                 <configuration>
                     <mainClass>com.secretsanta.gui.SecretSantaGui</mainClass>
-                    <additionalAppResources>input</additionalAppResources>
+                    <additionalAppResources>additionalresources</additionalAppResources>
                     <copyAdditionalAppResourcesToJar>true</copyAdditionalAppResourcesToJar>
                 </configuration>
             </plugin>
