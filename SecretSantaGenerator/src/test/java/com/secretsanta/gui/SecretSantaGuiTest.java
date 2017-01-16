@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testfx.framework.junit.ApplicationTest;
 
+import javafx.scene.control.Button;
+
 import javafx.stage.Stage;
 
 public class SecretSantaGuiTest extends ApplicationTest
@@ -33,6 +35,14 @@ public class SecretSantaGuiTest extends ApplicationTest
     @Before
     public void setUp()
     {
+        this.clickOn("Generate!");
+        this.clickOn("Save!");
+        this.clickOn("OK");
+        this.clickOn("Clear Results");
+        this.clickOn("Add Newcomer");
+        this.clickOn("Cancel");
+        this.clickOn("Edit Exclusions");
+        this.clickOn("Cancel");
     }
 
     @Override
