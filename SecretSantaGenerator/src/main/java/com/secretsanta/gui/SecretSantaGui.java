@@ -3,6 +3,7 @@ package com.secretsanta.gui;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,7 @@ import com.secretsanta.data.CsvFactory;
 import com.secretsanta.data.DataReader;
 import com.secretsanta.data.DataRecorder;
 import com.secretsanta.data.ExclusionReader;
+import com.secretsanta.data.InputFileLocator;
 import com.secretsanta.generator.GenerateException;
 import com.secretsanta.generator.ResultGenerator;
 import com.secretsanta.generator.SecretSanta;
@@ -42,6 +44,7 @@ public class SecretSantaGui extends Application
     private static final Logger logger = LoggerFactory.getLogger(SecretSantaGui.class);
 
     // ===== file handlers =====
+    private InputFileLocator inputFileLocator;
     private DataRecorder dataRecorder;
     private DataReader dataReader;
     private ExclusionReader exclusionReader;
@@ -86,33 +89,40 @@ public class SecretSantaGui extends Application
     @Override
     public void start(Stage mainStage) throws Exception
     {
-        // create single instance of csv factory for use by all file handlers
-        File dataFile = new File(
-                getClass().getResource(Constants.DATA_FILE_PATH).getFile());
-        File exclusionsFile = new File(
-                getClass().getResource(Constants.EXCLUSION_FILE_PATH).getFile());
-        CsvFactory csvFactory = new CsvFactory(dataFile.getPath(),
-                exclusionsFile.getPath(), Constants.OUTPUT_FILE_PATH);
-
-        // instantiate file handlers
-        this.exclusionReader = new ExclusionReader(csvFactory);
-        this.dataReader = new DataReader(csvFactory, this.exclusionReader);
-        this.dataRecorder = new DataRecorder(csvFactory, this.dataReader);
-
         final List<SecretSantaDisplayType> secretSantaDisplayList;
         try
         {
+            // locate input files
+            this.inputFileLocator = new InputFileLocator();
+            List<Path> inputFileList = this.inputFileLocator.findInputFiles(
+                    Constants.ADDITIONAL_RESOURCES_DIR, Constants.INPUT_DIR);
+            Path dataPath = inputFileList.stream()
+                    .filter(file -> file.toString().contains(Constants.DATA_FILE_PATH))
+                    .findAny().orElse(null);
+            Path exclusionPath = inputFileList.stream()
+                    .filter(file -> file.toString().contains(Constants.EXCLUSION_FILE_PATH))
+                    .findAny().orElse(null);
+
+            // create single instance of csv factory for use by all file handlers
+            CsvFactory csvFactory = new CsvFactory(dataPath.toString(),
+                    exclusionPath.toString(), Constants.OUTPUT_FILE_PATH);
+
+            // instantiate file handlers
+            this.exclusionReader = new ExclusionReader(csvFactory);
+            this.dataReader = new DataReader(csvFactory, this.exclusionReader);
+            this.dataRecorder = new DataRecorder(csvFactory, this.dataReader);
+
             // set up data for main table
             secretSantaDisplayList = this.dataReader.parseRawDataFileWithExclusions();
             this.mainTableView = new MainTableView(this.dataReader,
                     secretSantaDisplayList);
         }
-        catch (FileNotFoundException e)
+        catch (Exception e)
         {
             logger.error("Cannot read file: ", e);
             this.simpleDialogCreator.showSimpleDialog(AlertType.ERROR,
                     String.format(Constants.DATA_READ_ERROR, e.getMessage()));
-            return;
+            return; // do not continue program if files cannot be read
         }
 
         // configure panes
