@@ -84,10 +84,11 @@
 
         <!-- TestFX -->
         <!-- https://mvnrepository.com/artifact/com.github.julien-truffaut/monocle-core_2.11 -->
+        <!-- https://mvnrepository.com/artifact/org.jfxtras/openjfx-monocle -->
         <dependency>
-            <groupId>com.github.julien-truffaut</groupId>
-            <artifactId>monocle-core_2.11</artifactId>
-            <version>1.4.0</version>
+            <groupId>org.jfxtras</groupId>
+            <artifactId>openjfx-monocle</artifactId>
+            <version>1.8.0_20</version>
         </dependency>
         <dependency>
             <groupId>org.testfx</groupId>

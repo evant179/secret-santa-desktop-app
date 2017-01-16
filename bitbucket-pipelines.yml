@@ -12,4 +12,4 @@ pipelines:
           - apt-get update
           - apt-get install -y openjfx
           - cd SecretSantaGenerator
-          - mvn clean install jfx:jar
+          - mvn clean install jfx:jar -Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dprism.order=sw -Dprism.text=t2k
