@@ -83,6 +83,12 @@
         </dependency>
 
         <!-- TestFX -->
+        <!-- https://mvnrepository.com/artifact/com.github.julien-truffaut/monocle-core_2.11 -->
+        <dependency>
+            <groupId>com.github.julien-truffaut</groupId>
+            <artifactId>monocle-core_2.11</artifactId>
+            <version>1.4.0</version>
+        </dependency>
         <dependency>
             <groupId>org.testfx</groupId>
             <artifactId>testfx-core</artifactId>
