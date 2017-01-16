@@ -1,9 +1,10 @@
 package com.secretsanta.gui;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -99,8 +100,8 @@ public class SecretSantaGui extends Application
             Path dataPath = inputFileList.stream()
                     .filter(file -> file.toString().contains(Constants.DATA_FILE_PATH))
                     .findAny().orElse(null);
-            Path exclusionPath = inputFileList.stream()
-                    .filter(file -> file.toString().contains(Constants.EXCLUSION_FILE_PATH))
+            Path exclusionPath = inputFileList.stream().filter(
+                    file -> file.toString().contains(Constants.EXCLUSION_FILE_PATH))
                     .findAny().orElse(null);
 
             // create single instance of csv factory for use by all file handlers
@@ -290,7 +291,21 @@ public class SecretSantaGui extends Application
                 {
                     try
                     {
-                        // when Save button is pressed, save generation results
+                        // verify if output directory exists; create if it doesn't
+                        Path outputDir = Paths.get(Constants.OUTPUT_DIR);
+                        if (Files.exists(outputDir) && Files.isDirectory(outputDir))
+                        {
+                            logger.info("Valid ouput directory exists. "
+                                    + "Continue save processing");
+                        }
+                        else
+                        {
+                            logger.warn(
+                                    "Valid output directory does NOT exist. "
+                                    + "Create output folder");
+                            Files.createDirectory(outputDir);
+                        }
+                        // save results
                         dataRecorder.saveGenerationResults(attendeeToResultMapCopy);
                         logger.info("Successfully saved current year data");
                         simpleDialogCreator.showSimpleDialog(AlertType.INFORMATION,
