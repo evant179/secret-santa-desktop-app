@@ -7,10 +7,11 @@ public final class Constants
 {
     public static final String ADDITIONAL_RESOURCES_DIR = "additionalresources";
     public static final String INPUT_DIR = "input";
+    public static final String OUTPUT_DIR = "output";
     public static final String DATA_FILE_PATH = "data.csv";
     public static final String EXCLUSION_FILE_PATH = "exclusions.csv";
-    public static final String OUTPUT_FILE_PATH = "output/current_year_data.csv";
-    
+    public static final String OUTPUT_FILE_PATH = OUTPUT_DIR + "/current_year_data.csv";
+
     public static final String DIRECTORY_ERROR = "Error reading directory: %s";
     public static final String FILE_ERROR = "Error reading files: %s\n%s";
 
