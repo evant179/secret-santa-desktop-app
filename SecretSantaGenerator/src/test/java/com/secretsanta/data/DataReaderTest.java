@@ -23,14 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opencsv.CSVReader;
-import com.secretsanta.data.CsvFactory;
-import com.secretsanta.data.DataReader;
-import com.secretsanta.data.ExclusionReader;
 import com.secretsanta.data.CsvFactory.FILETYPE;
 import com.secretsanta.generator.SecretSanta;
 import com.secretsanta.gui.SecretSantaDisplayType;
-
-import javafx.beans.property.SimpleStringProperty;
 
 /**
  * Unit tests for {@link DataReader}
@@ -293,7 +288,7 @@ public class DataReaderTest
      * @throws Exception
      */
     @Test
-    public void test_generateCodeBehaviorTesting() throws Exception
+    public void test_codeBehaviorTesting1() throws Exception
     {
         List<SecretSantaDisplayType> displayList = new ArrayList<>();
         SecretSantaDisplayType display1 = new SecretSantaDisplayType("name1",
@@ -312,15 +307,15 @@ public class DataReaderTest
         displayList.add(display2);
         displayList.add(display3);
         displayList.add(display4);
-        
+
         // test creating map
         int index = 1;
-        Map<String, String> nameToOverriddenSelectedNameMap = displayList.stream()
-                .filter(type -> !type.getSecretSantaList().get(index).getValue().isEmpty())
+        Map<String, String> nameToOverriddenSelectedNameMap = displayList.stream().filter(
+                type -> !type.getSecretSantaList().get(index).getValue().isEmpty())
                 .collect(Collectors.toMap(SecretSantaDisplayType::getName,
                         type -> type.getSecretSantaList().get(index).getValue()));
 
         logger.info("map output: {}", nameToOverriddenSelectedNameMap);
-        logger.info("========== PASS test_generateCodeBehaviorTesting ==========");
+        logger.info("========== PASS test_codeBehaviorTesting1 ==========");
     }
 }
